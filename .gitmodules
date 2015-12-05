@@ -1,0 +1,3 @@
+[submodule "moodle-javascript_style_checker"]
+	path = moodle-javascript_style_checker
+	url = https://github.com/julenpardo/moodle-javascript_style_checker
