@@ -1,3 +1,5 @@
+YUI.add('moodle-atto_multilang2-button', function (Y, NAME) {
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -70,3 +72,6 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         languages: DEFAULT_LANGUAGE
     }
 });
+
+
+}, '@VERSION@', {"requires": ["moodle-editor_atto-plugin"]});
