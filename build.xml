@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="moodle-atto_moodlelang2" default="install" description="Atto Multilingual content plugin project">
+  <property name="success.code" value="0"/>
+  <property name="error.code" value="1"/>
+
   <property name="jscs.exec" value="jscs yui/src/button/js/button.js --preset=moodle-javascript_style_checker/moodle.jscsrc"/>
   <property name="jscs.success" value="Success checking code style with JSCS."/>
   <property name="jscs.fail" value="${line.separator}Failed checking code style:${line.separator}"/>
@@ -13,10 +16,15 @@
   <property name="install.to" value="/var/www/html/moodle/lib/editor/atto/plugins/multilang2"/>
   <property name="install.message" value="Plugin source moved to ${install.to}."/>
 
+  <property name="behat.dir" value="/var/www/html/moodle/vendor/bin/behat "/>
+  <property name="behat.config" value="--config /var/behat_moodle/behat/behat.yml "/>
+  <property name="behat.tags" value="--tags @atto_multilang2 "/>
+  <property name="behat.exec" value="${behat.dir} ${behat.config} ${behat.tags}"/>
+
   <target name="jscs">
     <exec command="${jscs.exec}" returnProperty="jscs.status" outputProperty="jscs.output"/>
     <if>
-      <equals arg1="${jscs.status}" arg2="0"/>
+      <equals arg1="${jscs.status}" arg2="${success.code}"/>
       <then>
         <echo msg="${jscs.success}"/>
       </then>
@@ -29,7 +37,7 @@
   <target name="shifter" depends="jscs">
     <exec command="${shifter.exec}" dir="${shifter.dir}" returnProperty="shifter.status" outputProperty="shifter.output"/>
     <if>
-      <equals arg1="${shifter.status}" arg2="0"/>
+      <equals arg1="${shifter.status}" arg2="${success.code}"/>
       <then>
         <echo msg="${shifter.success}"/>
       </then>
@@ -49,6 +57,18 @@
         <exclude name="README.md"/>
       </fileset>
     </copy>
+  </target>
+
+  <target name="test" depends="install">
+    <exec command="${behat.exec}" returnProperty="behat.status" outputProperty="behat.output"/>
+    <if>
+      <equals arg1="${behat.status}" arg2="${error.code}"/>
+      <then>
+        <fail message="${behat.output}"/>
+      </then>
+    </if>
+
+    <echo msg="${behat.output}"/>
   </target>
 
 </project>
