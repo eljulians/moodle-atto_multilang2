@@ -25,9 +25,33 @@ YUI.add('moodle-atto_multilang2-button', function (Y, NAME) {
  * @module moodle-atto_multilang2-button
  */
 
-var ATTR_LANGUAGES = 'languages',
+var CSS = {
+        BEGIN: 'multilang_begin',
+        END: 'multilang_end'
+    },
+
+    SELECTORS = {
+        BEGIN: '.multilang_begin',
+        END: '.multilang_end'
+    },
+
+    STYLE = '' + SELECTORS.BEGIN + ', ' + SELECTORS.END + '{' +
+        'outline: 1px dotted;' +
+        'padding: 0.1em;' +
+        'margin: 0em 0.1em;' +
+        'background-color: #ffffaa;' +
+    '}',
+
+    LANG_WILDCARD = '%lang',
+    CONTENT_WILDCARD = '%content',
+
+    TEMPLATE = '' +
+        '<span class="{{CSS.BEGIN}}">{mlang {{LANG_WILDCARD}}}</span>' +
+        '<span>{{CONTENT_WILDCARD}}</span>' +
+        '<span class="{{CSS.END}}">{mlang}</span>',
+
+    ATTR_LANGUAGES = 'languages',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
-    LANG_WILDCARD = '%',
     START_TAG = '{mlang ' + LANG_WILDCARD + '}',
     END_TAG = '{mlang}';
 
