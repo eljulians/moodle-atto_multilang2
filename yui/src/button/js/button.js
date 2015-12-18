@@ -23,11 +23,28 @@
  * @module moodle-atto_multilang2-button
  */
 
-var ATTR_LANGUAGES = 'languages',
+var CLASSES = {
+        BEGIN: 'multilang_tag multilang_begin',
+        END: 'multilang_tag multilang_end',
+        CONTENT: 'multilang_content'
+    },
+
+    STYLE = 'outline: 1px dotted;' +
+            'padding: 0.1em;' +
+            'margin: 0em 0.1em;' +
+            'background-color: #ffffaa;',
+
+    LANG_WILDCARD = '%lang',
+    CONTENT_WILDCARD = '%content',
+    ATTR_LANGUAGES = 'languages',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
-    LANG_WILDCARD = '%',
     START_TAG = '{mlang ' + LANG_WILDCARD + '}',
-    END_TAG = '{mlang}';
+    END_TAG = '{mlang}',
+
+    TEMPLATE = '' +
+        '&nbsp;<span class="' + CLASSES.BEGIN + '" style="' + STYLE + '">{mlang ' + LANG_WILDCARD + '}</span>' +
+        '<span class="' + CLASSES.CONTENT + '">' + CONTENT_WILDCARD + '</span>' +
+        '<span class="' + CLASSES.END + '" style="' + STYLE + '">{mlang}</span>&nbsp;';
 
 /**
  * Atto text editor multilanguage plugin.
@@ -39,14 +56,14 @@ var ATTR_LANGUAGES = 'languages',
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
     initializer: function() {
-        var toolbarItems = [];
-        var languages = JSON.parse(this.get(ATTR_LANGUAGES));
-        var langCode;
+        var toolbarItems = [],
+            languages = JSON.parse(this.get(ATTR_LANGUAGES)),
+            langCode;
 
         for (langCode in languages) {
             toolbarItems.push({
                 text: languages[langCode],
-                callbackArgs: START_TAG.replace(LANG_WILDCARD, langCode)
+                callbackArgs: langCode
             });
         }
 
@@ -58,10 +75,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         });
     },
 
-    _addTags: function(e, startTag) {
-        var host = this.get('host');
+    _addTags: function(e, langCode) {
+        var host = this.get('host'),
+            content = TEMPLATE;
 
-        host.insertContentAtFocusPoint(startTag + host.getSelection() + END_TAG);
+        content = content.replace(LANG_WILDCARD, langCode);
+        content = content.replace(CONTENT_WILDCARD, host.getSelection());
+
+        host.insertContentAtFocusPoint(content);
 
         this.markUpdated();
     }
