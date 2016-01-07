@@ -1,74 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="moodle-atto_moodlelang2" default="install" description="Atto Multilingual content plugin project">
-  <property name="success.code" value="0"/>
-  <property name="error.code" value="1"/>
+<project name="moodle-atto_multilang2" default="behat_test">
 
-  <property name="jscs.exec" value="jscs yui/src/button/js/button.js --preset=moodle-javascript_style_checker/moodle.jscsrc"/>
-  <property name="jscs.success" value="Success checking code style with JSCS."/>
-  <property name="jscs.fail" value="${line.separator}Failed checking code style:${line.separator}"/>
+    <property name="workspace.dir" value="${env.JENKINS_HOME}/jobs/${phing.project.name}/workspace"/>
+    <property name="moodle.git" value="${workspace.dir}/moodle/"/>
+    <property name="parameter.version" value=""/>
+    <property name="version.dir" value="${workspace.dir}/target/${parameter.version}"/>
+    <property name="config.path" value="${env.JENKINS_HOME}/moodle-config/config.php"/>
+    <property name="atto_multilang2.install.path" value="${version.dir}/lib/editor/atto/plugins/multilang2"/>
+    <property name="behat.wwwroot" value="/var/www/html/behat"/>
+    <property name="behat.yml" value="/var/behat_moodle/behat/behat.yml"/>
+    <property name="selenium.version" value="2.48.2"/>
+    <property name="selenium.path" value="${env.JENKINS_HOME}/selenium/selenium-server-standalone-${selenium.version}.jar"/>
+    <property name="error.code" value="1"/>
 
-  <property name="shifter.exec" value="shifter --no-lint --recursive"/>
-  <property name="shifter.dir" value="yui/src/button/"/>
-  <property name="shifter.success" value="Success building with Shifter."/>
-  <property name="shifter.fail" value="${line.separator}Shifter build failed:${line.separator}"/>
+    <property name="jscs.exec" value="jscs yui/src/button/js/button.js --preset=moodle-javascript_style_checker/moodle.jscsrc"/>
+    <property name="jscs.success" value="Success checking code style with JSCS."/>
+    <property name="jscs.fail" value="${line.separator}Failed checking code style:${line.separator}"/>
+    <property name="shifter.exec" value="shifter --no-lint --recursive"/>
+    <property name="shifter.dir" value="yui/src/button/"/>
+    <property name="shifter.success" value="Success building with Shifter."/>
+    <property name="shifter.fail" value="${line.separator}Shifter build failed:${line.separator}"/>
 
-  <property name="install.from" value="./"/>
-  <property name="install.to" value="/var/www/html/moodle/lib/editor/atto/plugins/multilang2"/>
-  <property name="install.message" value="Plugin source moved to ${install.to}."/>
 
-  <property name="behat.dir" value="/var/www/html/moodle/vendor/bin/behat "/>
-  <property name="behat.config" value="--config /var/behat_moodle/behat/behat.yml "/>
-  <property name="behat.tags" value="--tags @atto_multilang2 "/>
-  <property name="behat.exec" value="${behat.dir} ${behat.config} ${behat.tags}"/>
+    <target name="atto_multilang2_clone">
+        <exec command="git init" dir="${workspace.dir}/moodle-atto_multilang2"/>
+        <exec command="git remote add origin https://github.com/julenpardo/moodle-atto_multilang2.git" dir="${workspace.dir}/moodle-atto_multilang2"/>
+        <exec command="git pull &amp;&amp; git submodule init &amp;&amp; git submodule update &amp;&amp; git submodule status" dir="${workspace.dir}/moodle-atto_multilang2" outputProperty="atto_multilang2_pull.output"/>
+        <echo msg="${atto_multilang2_pull.output}"/>
+    </target>
 
-  <target name="jscs">
-    <exec command="${jscs.exec}" returnProperty="jscs.status" outputProperty="jscs.output"/>
-    <if>
-      <equals arg1="${jscs.status}" arg2="${success.code}"/>
-      <then>
-        <echo msg="${jscs.success}"/>
-      </then>
-      <else>
-        <fail message="${jscs.fail} ${jscs.output}"/>
-      </else>
-    </if>
-  </target>
 
-  <target name="shifter" depends="jscs">
-    <exec command="${shifter.exec}" dir="${shifter.dir}" returnProperty="shifter.status" outputProperty="shifter.output"/>
-    <if>
-      <equals arg1="${shifter.status}" arg2="${success.code}"/>
-      <then>
-        <echo msg="${shifter.success}"/>
-      </then>
-      <else>
-        <fail message="${shifter.fail} ${shifter.output}"/>
-      </else>
-    </if>
-  </target>
+    <target name="jscs" depends="atto_multilang2_clone">
+        <exec command="${jscs.exec}" returnProperty="jscs.status" outputProperty="jscs.output"/>
+            <if>
+                <equals arg1="${jscs.status}" arg2="${error.code}"/>
+                <then>
+                    <fail message="${jscs.fail} ${jscs.output}"/>
+                </then>
+                <else>
+                    <echo msg="${jscs.success}"/>
+                </else>
+            </if>
+    </target>
 
-  <target name="install" depends="shifter">
-    <copy todir="${install.to}">
-      <fileset dir="${install.from}">
-        <exclude name="build.xml"/>
-        <exclude name=".git/"/>
-        <exclude name=".gitmodules"/>
-        <exclude name="moodle-javascript_style_checker/"/>
-        <exclude name="README.md"/>
-      </fileset>
-    </copy>
-  </target>
+    <target name="shifter" depends="jscs">
+        <exec command="${shifter.exec}" dir="${shifter.dir}" returnProperty="shifter.status" outputProperty="shifter.output"/>
+            <if>
+                <equals arg1="${shifter.status}" arg2="${error.code}"/>
+                <then>
+                    <fail message="${shifter.fail} ${shifter.output}"/>
+                </then>
+                <else>
+                    <echo msg="${shifter.success}"/>
+                </else>
+            </if>
+    </target>
 
-  <target name="test" depends="install">
-    <exec command="${behat.exec}" returnProperty="behat.status" outputProperty="behat.output"/>
-    <if>
-      <equals arg1="${behat.status}" arg2="${error.code}"/>
-      <then>
-        <fail message="${behat.output}"/>
-      </then>
-    </if>
 
-    <echo msg="${behat.output}"/>
-  </target>
+    <target name="moodle_pull">
+        <mkdir dir="${moodle.git}"/>
+        <exec command="git init" dir="${moodle.git}"/>
+        <exec command="git remote add origin https://github.com/moodle/moodle.git" dir="${moodle.git}"/>
+        <exec command="git pull --all" dir="${moodle.git}" outputProperty="moodle_pull.output"/>
+        <echo msg="${moodle_pull.output}"/>
+    </target>
+
+    <target name="moodle_install" depends="moodle_pull">
+        <exec command="git checkout ${parameter.version}" dir="${moodle.git}" outputProperty="moodle_install.checkout.output"/>
+        <echo msg="${moodle_install.checkout.output}"/>
+        <exec command="cp -r ./* ${version.dir}" dir="${moodle.git}"/>
+        <exec command="cp ${config.path} config.php" dir="${version.dir}"/>
+    </target>
+
+    <target name="atto_multilang2_install" depends="atto_multilang2_clone, moodle_install">
+        <copy todir="${atto_multilang2.install.path}">
+            <fileset dir="${workspace.dir}/moodle-atto_multilang2/">
+                <exclude name="build.xml"/>
+                <exclude name=".git/"/>
+                <exclude name=".gitmodules"/>
+                <exclude name="moodle-javascript_style_checker/"/>
+                <exclude name="README.md"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="behat_init" depends="atto_multilang2_install">
+        <exec command="php admin/tool/behat/cli/init.php" dir="${version.dir}"/>
+        <exec command="rm --recursive ${behat.wwwroot}/*"/>
+        <copy todir="${behat.wwwroot}">
+            <fileset dir="${version.dir}"/>
+        </copy>
+        <copy file="${config.path}" tofile="${behat.wwwroot}/config.php"/>
+    </target>
+
+    <target name="selenium_kill">
+        <exec command="curl -s http://localhost:4444/selenium-server/driver/?cmd=shutDownSeleniumServer"/>
+    </target>
+
+    <target name="selenium_start" depends="selenium_kill">
+        <exec command="java -jar /var/www/html/moodle/selenium-server-standalone-2.48.2.jar &gt; /dev/null &amp;" outputProperty="selenium.output"/>
+    </target>
+
+    <target name="behat_test" depends="behat_init, selenium_start">
+        <exec command="vendor/bin/behat --config ${behat.yml} --tags @atto_multilang2" dir="${version.dir}" returnProperty="behat.status" outputProperty="behat.output"/>
+        <if>
+            <equals arg1="${behat.status}" arg2="${error.code}"/>
+            <then>
+                <fail message="${behat.output}"/>
+            </then>
+        </if>
+
+        <echo msg="${behat.output}"/>
+    </target>
 
 </project>
