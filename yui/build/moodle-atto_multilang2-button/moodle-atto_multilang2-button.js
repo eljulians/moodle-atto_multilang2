@@ -60,6 +60,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
     _languages: null,
 
+    _lastSelectedNode: '',
+
     initializer: function() {
         var toolbarItems = [],
             langCode;
@@ -98,21 +100,33 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _checkSelectionChange: function() {
         var host = this.get('host'),
     	    node = host.getSelectionParentNode(),
+            nodeValue = Y.one(node).get('text'),
             langCode,
-            nodeValue,
             startTag,
-            endTag;
+            endTag,
+            distinctLangTag,
+            isTextNode;
 
-        nodeValue = Y.one(node).get('text');
+        isTextNode = Y.one(node).toString().indexOf("#text") > - 1;
 
-        for (langCode in this._languages) {
-            startTag = START_TAG.replace(LANG_WILDCARD, langCode);
-            endTag = END_TAG.replace(LANG_WILDCARD, langCode);
-        	
-            if (nodeValue === startTag || nodeValue === endTag) {
-                host.setSelection(host.getSelectionFromNode(Y.one(node)));
+        if (isTextNode) {
+            for (langCode in this._languages) {
+                startTag = START_TAG.replace(LANG_WILDCARD, langCode);
+                endTag = END_TAG;
+
+                distinctLangTag = (nodeValue === startTag || nodeValue === endTag) 
+                    && Y.one(node).toString() !== this._lastSelectedNode;
+          
+                if (distinctLangTag) {
+                    host.setSelection(host.getSelectionFromNode(Y.one(node)));
+                    this._lastSelectedNode = Y.one(node).toString();
+ 
+                    return;
+                }
             }
         }
+
+        this._lastSelectedNode = '';
     }
 
 }, {
