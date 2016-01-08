@@ -55,14 +55,18 @@ var CLASSES = {
  */
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
+
+    _languages: null,
+
     initializer: function() {
         var toolbarItems = [],
-            languages = JSON.parse(this.get(ATTR_LANGUAGES)),
             langCode;
 
-        for (langCode in languages) {
+        this._languages = JSON.parse(this.get(ATTR_LANGUAGES));
+
+        for (langCode in this._languages) {
             toolbarItems.push({
-                text: languages[langCode],
+                text: this._languages[langCode],
                 callbackArgs: langCode
             });
         }
@@ -73,6 +77,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             },
             items: toolbarItems
         });
+
+        this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
     },
 
     _addTags: function(e, langCode) {
@@ -85,7 +91,28 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         host.insertContentAtFocusPoint(content);
 
         this.markUpdated();
+    },
+
+    _checkSelectionChange: function() {
+        var host = this.get('host'),
+    	    node = host.getSelectionParentNode(),
+            langCode,
+            nodeValue,
+            startTag,
+            endTag;
+
+        nodeValue = Y.one(node).get('text');
+
+        for (langCode in this._languages) {
+            startTag = START_TAG.replace(LANG_WILDCARD, langCode);
+            endTag = END_TAG.replace(LANG_WILDCARD, langCode);
+        	
+            if (nodeValue === startTag || nodeValue === endTag) {
+                host.setSelection(host.getSelectionFromNode(Y.one(node)));
+            }
+        }
     }
+
 }, {
     ATTRS: {
         languages: DEFAULT_LANGUAGE
