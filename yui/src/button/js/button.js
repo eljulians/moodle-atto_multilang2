@@ -24,8 +24,8 @@
  */
 
 var CLASSES = {
-        BEGIN: 'multilang_tag multilang_begin',
-        END: 'multilang_tag multilang_end',
+        BEGIN: 'multilang_tag',
+        END: 'multilang_tag',
         CONTENT: 'multilang_content'
     },
 
@@ -57,8 +57,6 @@ var CLASSES = {
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
     _languages: null,
-
-    _lastSelectedNode: '',
 
     initializer: function() {
         var toolbarItems = [],
@@ -99,32 +97,15 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         var host = this.get('host'),
     	    node = host.getSelectionParentNode(),
             nodeValue = Y.one(node).get('text'),
-            langCode,
-            startTag,
-            endTag,
-            distinctLangTag,
-            isTextNode;
+            isTextNode,
+            isLangTag;
 
-        isTextNode = Y.one(node).toString().indexOf("#text") > - 1;
+        isTextNode = Y.one(node).toString().indexOf('#text') > - 1;
+        isLangTag = (nodeValue.match(/{mlang/g).length === 1);
 
-        if (isTextNode) {
-            for (langCode in this._languages) {
-                startTag = START_TAG.replace(LANG_WILDCARD, langCode);
-                endTag = END_TAG;
-
-                distinctLangTag = (nodeValue === startTag || nodeValue === endTag) 
-                    && Y.one(node).toString() !== this._lastSelectedNode;
-          
-                if (distinctLangTag) {
-                    host.setSelection(host.getSelectionFromNode(Y.one(node)));
-                    this._lastSelectedNode = Y.one(node).toString();
- 
-                    return;
-                }
-            }
+        if (isTextNode && isLangTag) {
+            host.setSelection(host.getSelectionFromNode(Y.one(node)));
         }
-
-        this._lastSelectedNode = '';
     }
 
 }, {
