@@ -26,3 +26,4 @@ $plugin->version   = 2015120500;         // The current plugin version (Date: YY
 $plugin->requires  = 2015051100;         // Required Moodle version.
 $plugin->component = 'atto_multilang2'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '2.9 (Build 2015120500)';
