@@ -1,0 +1,10 @@
+.multilang_tag {
+    outline: 1px dotted;
+    padding: 0.1em;
+    margin: 0em 0.1em;
+    background-color: #ffffaa;
+}
+
+.multilang_tag:empty {
+    display: none;
+}

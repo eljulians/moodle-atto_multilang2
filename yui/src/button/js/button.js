@@ -24,15 +24,9 @@
  */
 
 var CLASSES = {
-        BEGIN: 'multilang_tag',
-        END: 'multilang_tag',
+        TAG: 'multilang_tag',
         CONTENT: 'multilang_content'
     },
-
-    STYLE = 'outline: 1px dotted;' +
-            'padding: 0.1em;' +
-            'margin: 0em 0.1em;' +
-            'background-color: #ffffaa;',
 
     LANG_WILDCARD = '%lang',
     CONTENT_WILDCARD = '%content',
@@ -42,9 +36,9 @@ var CLASSES = {
     END_TAG = '{mlang}',
 
     TEMPLATE = '' +
-        '&nbsp;<span class="' + CLASSES.BEGIN + '" style="' + STYLE + '">{mlang ' + LANG_WILDCARD + '}</span>' +
+        '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
         '<span class="' + CLASSES.CONTENT + '">' + CONTENT_WILDCARD + '</span>' +
-        '<span class="' + CLASSES.END + '" style="' + STYLE + '">{mlang}</span>&nbsp;';
+        '<span class="' + CLASSES.TAG + '">{mlang}</span>&nbsp;';
 
 /**
  * Atto text editor multilanguage plugin.
@@ -59,6 +53,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _languages: null,
 
     initializer: function() {
+
         var toolbarItems = [],
             langCode;
 

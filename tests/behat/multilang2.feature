@@ -34,4 +34,4 @@ Feature: Atto multilanguage list
     And I set the field "Text editor" to "Plain text area"
     And I press "Save changes"
     And I follow "Edit profile"
-    Then I should see "<span class=\"multilang_tag multilang_begin\" style=\"padding:.1em;margin:0em .1em;background-color:#ffffaa;\">{mlang en}</span><span class=\"multilang_content\">Multilingual content, again</span><span class=\"multilang_tag multilang_end\" style=\"padding:.1em;margin:0em .1em;background-color:#ffffaa;\">{mlang}</span>"
+    Then I should see "<span class=\"multilang_tag\">{mlang en}</span><span class=\"multilang_content\">Multilingual content, again</span><span class=\"multilang_tag\">{mlang}</span>"
