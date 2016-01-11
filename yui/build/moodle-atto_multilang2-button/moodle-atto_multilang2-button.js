@@ -72,6 +72,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             globalItemConfig: {
                 callback: this._addTags
             },
+            icon: 'icon',
+            iconComponent: 'atto_multilang2',
             items: toolbarItems
         });
 
