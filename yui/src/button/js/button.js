@@ -50,32 +50,57 @@ var CLASSES = {
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
-    _languages: null,
-
     initializer: function() {
+        var toolbarItems = [];
 
-        var toolbarItems = [],
-            langCode;
-
-        this._languages = JSON.parse(this.get(ATTR_LANGUAGES));
-
-        for (langCode in this._languages) {
-            toolbarItems.push({
-                text: this._languages[langCode],
-                callbackArgs: langCode
-            });
-        }
+        toolbarItems = this._initializeToolbarItems();
 
         this.addToolbarMenu({
             globalItemConfig: {
                 callback: this._addTags
             },
+            icon: 'icon',
+            iconComponent: 'atto_multilang2',
             items: toolbarItems
         });
 
         this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
     },
 
+    /**
+     * Initializes the toolbar items, which will be the installed languages,
+     * received as parameter.
+     *
+     * @method _initializeToolbarItems
+     * @private
+     * @return {Array} installed language strings
+     */
+    _initializeToolbarItems: function() {
+        var toolbarItems = [],
+            languages,
+            langCode;
+
+        languages = JSON.parse(this.get(ATTR_LANGUAGES));
+
+        for (langCode in languages) {
+            toolbarItems.push({
+                text: languages[langCode],
+                callbackArgs: langCode
+            });
+        }
+
+        return toolbarItems;
+    },
+
+    /**
+     * Retrieves the selected text, wraps it with the multilang tags,
+     * and replaces the selected text in the editor with with it.
+     *
+     * @method _addTags
+     * @param {EventFacade} e
+     * @param {string} langCode the language code
+     * @private
+     */
     _addTags: function(e, langCode) {
         var host = this.get('host'),
             content = TEMPLATE;
@@ -88,6 +113,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         this.markUpdated();
     },
 
+    /**
+     * Listens to every change of the text cursor in the text area. If the
+     * cursor is placed within a multilang tag, the whole tag is selected.
+     *
+     * @method _checkSelectionChange
+     * @private
+     */
     _checkSelectionChange: function() {
         var host = this.get('host'),
     	    node = host.getSelectionParentNode(),
@@ -105,6 +137,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
 }, {
     ATTRS: {
+        /**
+         * The list of installed languages
+         *
+         * @attribute languages
+         * @type array
+         * @default {"en":"English (en)"}
+         */
         languages: DEFAULT_LANGUAGE
     }
 });
