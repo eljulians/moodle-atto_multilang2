@@ -32,8 +32,6 @@ var CLASSES = {
     CONTENT_WILDCARD = '%content',
     ATTR_LANGUAGES = 'languages',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
-    START_TAG = '{mlang ' + LANG_WILDCARD + '}',
-    END_TAG = '{mlang}',
 
     TEMPLATE = '' +
         '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
@@ -83,10 +81,12 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         languages = JSON.parse(this.get(ATTR_LANGUAGES));
 
         for (langCode in languages) {
-            toolbarItems.push({
-                text: languages[langCode],
-                callbackArgs: langCode
-            });
+            if (languages.hasOwnProperty(langCode)) {
+                toolbarItems.push({
+                    text: languages[langCode],
+                    callbackArgs: langCode
+                });
+            }
         }
 
         return toolbarItems;
@@ -122,13 +122,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _checkSelectionChange: function() {
         var host = this.get('host'),
-    	    node = host.getSelectionParentNode(),
+            node = host.getSelectionParentNode(),
             nodeValue = Y.one(node).get('text'),
             isTextNode,
             isLangTag;
 
         isTextNode = Y.one(node).toString().indexOf('#text') > - 1;
-        isLangTag = (nodeValue.match(/{mlang/g).length === 1);
+        isLangTag = (nodeValue.match(/\{mlang/g).length === 1);
 
         if (isTextNode && isLangTag) {
             host.setSelection(host.getSelectionFromNode(Y.one(node)));

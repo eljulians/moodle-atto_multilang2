@@ -34,8 +34,6 @@ var CLASSES = {
     CONTENT_WILDCARD = '%content',
     ATTR_LANGUAGES = 'languages',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
-    START_TAG = '{mlang ' + LANG_WILDCARD + '}',
-    END_TAG = '{mlang}',
 
     TEMPLATE = '' +
         '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
@@ -52,29 +50,7 @@ var CLASSES = {
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
-    /**
-     * A reference to the installed languages, which will be received
-     * as paramater.
-     *
-     * @property _languages
-     * @type String
-     * @private
-     */
-    //_languages: null,
-
     initializer: function() {
-
-        /*var toolbarItems = [],
-            langCode;
-
-        this._languages = JSON.parse(this.get(ATTR_LANGUAGES));
-
-        for (langCode in this._languages) {
-            toolbarItems.push({
-                text: this._languages[langCode],
-                callbackArgs: langCode
-            });
-        }*/
         var toolbarItems = [];
 
         toolbarItems = this._initializeToolbarItems();
@@ -91,6 +67,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
     },
 
+    /**
+     * Initializes the toolbar items, which will be the installed languages,
+     * received as parameter.
+     *
+     * @method _initializeToolbarItems
+     * @private
+     * @return {Array} installed language strings
+     */
     _initializeToolbarItems: function() {
         var toolbarItems = [],
             languages,
@@ -99,10 +83,12 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         languages = JSON.parse(this.get(ATTR_LANGUAGES));
 
         for (langCode in languages) {
-            toolbarItems.push({
-                text: languages[langCode],
-                callbackArgs: langCode
-            });
+            if (languages.hasOwnProperty(langCode)) {
+                toolbarItems.push({
+                    text: languages[langCode],
+                    callbackArgs: langCode
+                });
+            }
         }
 
         return toolbarItems;
@@ -138,13 +124,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _checkSelectionChange: function() {
         var host = this.get('host'),
-    	    node = host.getSelectionParentNode(),
+            node = host.getSelectionParentNode(),
             nodeValue = Y.one(node).get('text'),
             isTextNode,
             isLangTag;
 
         isTextNode = Y.one(node).toString().indexOf('#text') > - 1;
-        isLangTag = (nodeValue.match(/{mlang/g).length === 1);
+        isLangTag = (nodeValue.match(/\{mlang/g).length === 1);
 
         if (isTextNode && isLangTag) {
             host.setSelection(host.getSelectionFromNode(Y.one(node)));
@@ -153,6 +139,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
 }, {
     ATTRS: {
+        /**
+         * The list of installed languages
+         *
+         * @attribute languages
+         * @type array
+         * @default {"en":"English (en)"}
+         */
         languages: DEFAULT_LANGUAGE
     }
 });
