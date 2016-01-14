@@ -27,6 +27,6 @@ defined('MOODLE_INTERNAL') || die();
  * @return array The JSON encoding of the installed languages. 
  */
 function atto_multilang2_params_for_js() {
-	$languages = json_encode(get_string_manager()->get_list_of_translations());
+    $languages = json_encode(get_string_manager()->get_list_of_translations());
     return array('languages' => $languages);
 }
