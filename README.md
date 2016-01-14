@@ -4,6 +4,11 @@ This plugin will make the creation of multilingual contents on Moodle much more 
 
 The plugin is developed to work with [Iñaki Arenaza's multilang2 filter](https://github.com/iarenaza/moodle-filter_multilang2), and the idea is based on [his plugin for TinyMCE editor](https://github.com/iarenaza/moodle-tinymce_moodlelang2).
 
+Requirements
+------------
+
+As mentioned before, [filter_multilang2](https://github.com/iarenaza/moodle-filter_multilang2) is required.
+
 Installation
 ------------
 
