@@ -98,7 +98,7 @@
     </target>
 
     <target name="selenium_start" depends="selenium_kill">
-        <exec command="java -jar /var/www/html/moodle/selenium-server-standalone-2.48.2.jar &gt; /dev/null &amp;" outputProperty="selenium.output"/>
+        <exec command="java -jar /var/lib/jenkins/selenium/selenium-server-standalone-2.48.2.jar &gt; /dev/null &amp;" outputProperty="selenium.output"/>
     </target>
 
     <target name="behat_test" depends="behat_init, selenium_start">
