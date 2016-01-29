@@ -26,8 +26,7 @@ YUI.add('moodle-atto_multilang2-button', function (Y, NAME) {
  */
 
 var CLASSES = {
-        TAG: 'multilang_tag',
-        CONTENT: 'multilang_content'
+        TAG: 'filter-multilang-tag'
     },
 
     LANG_WILDCARD = '%lang',
@@ -37,7 +36,7 @@ var CLASSES = {
 
     TEMPLATE = '' +
         '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
-        '<span class="' + CLASSES.CONTENT + '">' + CONTENT_WILDCARD + '</span>' +
+        CONTENT_WILDCARD +
         '<span class="' + CLASSES.TAG + '">{mlang}</span>&nbsp;';
 
 /**
@@ -98,23 +97,65 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * Retrieves the selected text, wraps it with the multilang tags,
      * and replaces the selected text in the editor with with it.
      *
+     * If there is no content selected, a "&nbsp;" will be inserted; otherwhise,
+     * it's impossible to place the cursor inside the {mlang} tags.
+     *
      * @method _addTags
      * @param {EventFacade} e
      * @param {string} langCode the language code
      * @private
      */
     _addTags: function(e, langCode) {
-        var host = this.get('host'),
-            content = TEMPLATE;
+        var selection,
+            host = this.get('host'),
+            taggedContent = TEMPLATE,
+            content;
 
-        content = content.replace(LANG_WILDCARD, langCode);
-        content = content.replace(CONTENT_WILDCARD, host.getSelection());
+        selection = this._getSelectionHTML();
+        content = (host.getSelection().toString().length === 0) ? '&nbsp;' : selection;
 
-        host.insertContentAtFocusPoint(content);
+        taggedContent = taggedContent.replace(LANG_WILDCARD, langCode);
+        taggedContent = taggedContent.replace(CONTENT_WILDCARD, content);
+
+        host.insertContentAtFocusPoint(taggedContent);
 
         this.markUpdated();
     },
 
+    /**
+     * Retrieves selected text with its HTML.
+     * Took from: http://stackoverflow.com/questions/4176923/html-of-selected-text/4177234#4177234
+     *
+     * @method _getSelectionHTML
+     * @private
+     * @return {string} selected text's html; empty if nothing selected
+     */
+    _getSelectionHTML: function() {
+        var html = '',
+            selection,
+            container,
+            index,
+            lenght;
+
+        if (typeof window.getSelection !== 'undefined') {
+            selection = window.getSelection();
+
+            if (selection.rangeCount) {
+                container = document.createElement('div');
+                for (index = 0, lenght = selection.rangeCount; index < lenght; ++index) {
+                    container.appendChild(selection.getRangeAt(index).cloneContents());
+                }
+                html = container.innerHTML;
+            }
+
+        } else if (typeof document.selection !== 'undefined') {
+            if (document.selection.type === 'Text') {
+                html = document.selection.createRange().htmlText;
+            }
+        }
+
+        return html;
+    },
     /**
      * Listens to every change of the text cursor in the text area. If the
      * cursor is placed within a multilang tag, the whole tag is selected.
