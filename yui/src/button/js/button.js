@@ -24,8 +24,7 @@
  */
 
 var CLASSES = {
-        TAG: 'multilang_tag',
-        CONTENT: 'multilang_content'
+        TAG: 'filter-multilang-tag'
     },
 
     LANG_WILDCARD = '%lang',
@@ -95,10 +94,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     /**
      * Retrieves the selected text, wraps it with the multilang tags,
      * and replaces the selected text in the editor with with it.
-     * 
+     *
      * If there is no content selected, a "&nbsp;"" will be inserted; otherwhise,
      * it's impossible to place the cursor inside the {mlang} tags.
-     * 
+     *
      * @method _addTags
      * @param {EventFacade} e
      * @param {string} langCode the language code
