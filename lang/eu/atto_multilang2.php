@@ -22,3 +22,7 @@
  */
 
 $string['pluginname'] = 'Eduki Eleanitza (v2)';
+$string['disableforstudents'] = 'Desgaitu ikasleentzat';
+$string['disableforstudents_desc'] = 'Aukeratuta badago, ikasleek ez dute ikusiko hizkuntzen zerrenda azaltzen duen botoia.';
+
+

@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -13,17 +14,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Strings for 'Atto Multilang v2' plugin.
+ * Atto multilang2 plugin settings.
  *
  * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Contenido Multi-Idioma (v2)';
-$string['disableforstudents'] = 'Desactivar para estudiantes';
-$string['disableforstudents_desc'] = 'Si se habilita, el botón que despliega la lista de idiomas no estará visible para los'
-    . ' estudiantes.';
+defined('MOODLE_INTERNAL') || die;
 
+$settings->add(new admin_setting_configcheckbox('atto_multilang2/disableforstudents',
+    get_string('disableforstudents', 'atto_multilang2'), get_string('disableforstudents_desc', 'atto_multilang2'), '1'));
 
