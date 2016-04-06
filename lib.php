@@ -28,5 +28,16 @@ defined('MOODLE_INTERNAL') || die();
  */
 function atto_multilang2_params_for_js() {
     $languages = json_encode(get_string_manager()->get_list_of_translations());
-    return array('languages' => $languages);
+    $capability = get_capability();
+
+    return array('languages' => $languages, 'capability' => $capability);
 }
+
+function get_capability() {
+    global $COURSE, $USER;
+
+    $context = context_course::instance($COURSE->id);
+
+    return has_capability('atto/multilang2:viewlanguagemenu', $context);
+}
+

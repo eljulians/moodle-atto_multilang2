@@ -15,16 +15,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Atto multilang2 plugin settings.
+ * Plugin for Moodle 'Multilingual content' drop down menu.
  *
  * @package   atto_multilang2
  * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
-$settings->add(new admin_setting_configcheckbox('atto_multilang2/disableforstudents',
-    get_string('disableforstudents', 'atto_multilang2'), get_string('disableforstudents_desc', 'atto_multilang2'), '1'));
+$capabilities = array(
+    'atto/multilang2:viewlanguagemenu' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
+        ),
+    ),
+);
 

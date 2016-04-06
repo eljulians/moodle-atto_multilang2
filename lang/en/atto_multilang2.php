@@ -22,6 +22,5 @@
  */
 
 $string['pluginname'] = 'Multi-Language Content (v2)';
-$string['disableforstudents'] = 'Disable for students';
-$string['disableforstudents_desc'] = 'If enabled, the students will not see the button that drops down the languages.';
+$string['multilang2:viewlanguagemenu'] = 'View language dropdown menu in Atto toolbar.';
 

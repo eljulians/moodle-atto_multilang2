@@ -22,8 +22,5 @@
  */
 
 $string['pluginname'] = 'Contenido Multi-Idioma (v2)';
-$string['disableforstudents'] = 'Desactivar para estudiantes';
-$string['disableforstudents_desc'] = 'Si se habilita, el botón que despliega la lista de idiomas no estará visible para los'
-    . ' estudiantes.';
-
+$string['multilang2:viewlanguagemenu'] = 'Ver el menú de idiomas en la barra de herramientas de Atto.';
 
