@@ -22,3 +22,5 @@
  */
 
 $string['pluginname'] = 'Contenido Multi-Idioma (v2)';
+$string['multilang2:viewlanguagemenu'] = 'Ver el menú de idiomas en la barra de herramientas de Atto.';
+

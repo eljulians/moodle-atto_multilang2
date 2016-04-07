@@ -22,3 +22,5 @@
  */
 
 $string['pluginname'] = 'Multi-Language Content (v2)';
+$string['multilang2:viewlanguagemenu'] = 'View language dropdown menu in Atto toolbar.';
+

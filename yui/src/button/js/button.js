@@ -30,6 +30,7 @@ var CLASSES = {
     LANG_WILDCARD = '%lang',
     CONTENT_WILDCARD = '%content',
     ATTR_LANGUAGES = 'languages',
+    ATTR_CAPABILITY = 'capability',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
 
     TEMPLATE = '' +
@@ -48,20 +49,23 @@ var CLASSES = {
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
     initializer: function() {
-        var toolbarItems = [];
+        var hascapability = this.get(ATTR_CAPABILITY),
+            toolbarItems = [];
 
-        toolbarItems = this._initializeToolbarItems();
+        if (hascapability) {
+            toolbarItems = this._initializeToolbarItems();
 
-        this.addToolbarMenu({
-            globalItemConfig: {
-                callback: this._addTags
-            },
-            icon: 'icon',
-            iconComponent: 'atto_multilang2',
-            items: toolbarItems
-        });
+            this.addToolbarMenu({
+                globalItemConfig: {
+                    callback: this._addTags
+                },
+                icon: 'icon',
+                iconComponent: 'atto_multilang2',
+                items: toolbarItems
+            });
 
-        this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
+            this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
+        }
     },
 
     /**
@@ -185,6 +189,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
          * @type array
          * @default {"en":"English (en)"}
          */
-        languages: DEFAULT_LANGUAGE
+        languages: DEFAULT_LANGUAGE,
+        capability: true
     }
 });
