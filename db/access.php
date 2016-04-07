@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,13 +16,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Plugin for Moodle 'Multilingual content' drop down menu.
- *
- * @package   atto_multilang2
- * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+// Plugin for Moodle 'Multilingual content' drop down menu.
+// @package   atto_multilang2
+// @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
+// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
 $capabilities = array(
     'atto/multilang2:viewlanguagemenu' => array(
@@ -32,7 +28,8 @@ $capabilities = array(
         'archetypes' => array(
             'teacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW
+            'editingteacher' => CAP_ALLOW,
+            'student' => CAP_PREVENT
         ),
     ),
 );
