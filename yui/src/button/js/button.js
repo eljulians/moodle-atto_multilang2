@@ -65,7 +65,42 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             });
 
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
+            this._cleanTagsOnSubmit();
         }
+    },
+
+    /**
+     * Cleans the <span> tags around the {mlang} tags when the form is submitted.
+     * All the logic to remove the tags is coded inside the 'on' method closure,
+     * because seems that is not possible to define a class function that is
+     * accessible from closure scope.
+     */
+    _cleanTagsOnSubmit: function() {
+        var submitbutton = Y.one('#id_submitbutton'),
+            textarea,
+            innerHTML,
+            spanedmlangtags,
+            spanedmlangtag,
+            index,
+            cleanmlangtag;
+
+        submitbutton.on('click', function(e){
+            textarea = Y.one('#id_messageeditable');
+            innerHTML = textarea.get('innerHTML');
+            e.preventDefault();
+            spanedmlangtags = innerHTML.match(/<span class=\"filter\-multilang\-tag\">.*?<\/span>/g);
+            
+            for (index = 0; index < spanedmlangtags.length; index++) {
+                spanedmlangtag = spanedmlangtags[index];
+                cleanmlangtag = spanedmlangtag.replace('<span class="filter-multilang-tag">', '');
+
+                cleanmlangtag = cleanmlangtag.replace('</span>', '');
+
+                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
+            }
+
+            textarea.set('innerHTML', innerHTML);
+        });
     },
 
     /**
