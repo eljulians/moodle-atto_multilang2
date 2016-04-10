@@ -48,6 +48,10 @@ var CLASSES = {
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
+    _submitform: false,
+
+    _subscription: null,
+
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
             toolbarItems = [];
@@ -65,7 +69,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             });
 
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
-            this._cleanTagsOnSubmit();
+            this._setSubmitListener();
         }
     },
 
@@ -75,7 +79,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * because seems that is not possible to define a class function that is
      * accessible from closure scope.
      */
-    _cleanTagsOnSubmit: function() {
+    _setSubmitListener: function() {
+        var submitbutton = Y.one('#id_submitbutton');
+
+//        this._subscription = submitbutton.on('click', this._cleanTagsOnSubmit);
+        submitbutton.on('click', this._cleanTagsOnSubmit, this);
+    },
+
+    _cleanTagsOnSubmit: function(e) {
         var submitbutton = Y.one('#id_submitbutton'),
             textarea,
             innerHTML,
@@ -84,12 +95,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             index,
             cleanmlangtag;
 
-        submitbutton.on('click', function(e){
-            textarea = Y.one('#id_messageeditable');
-            innerHTML = textarea.get('innerHTML');
-            e.preventDefault();
-            spanedmlangtags = innerHTML.match(/<span class=\"filter\-multilang\-tag\">.*?<\/span>/g);
-            
+        e.preventDefault();
+
+        textarea = Y.one('#id_messageeditable');
+        innerHTML = textarea.get('innerHTML');
+
+        spanedmlangtags = innerHTML.match(/<span class=\"filter\-multilang\-tag\">.*?<\/span>/g);
+
+        if (spanedmlangtags !== null) {
             for (index = 0; index < spanedmlangtags.length; index++) {
                 spanedmlangtag = spanedmlangtags[index];
                 cleanmlangtag = spanedmlangtag.replace('<span class="filter-multilang-tag">', '');
@@ -100,7 +113,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             }
 
             textarea.set('innerHTML', innerHTML);
-        });
+            textarea.set('text', innerHTML);
+            textarea.set('value', innerHTML);
+            this.markUpdated();
+        }
+        this.detach();
+
+        submitbutton.simulate('click');
     },
 
     /**
