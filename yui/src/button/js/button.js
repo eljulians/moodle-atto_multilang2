@@ -253,12 +253,19 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _decorateTagsOnInit: function() {
         var textarea = Y.one('#id_messageeditable'),
-            innerHTML = textarea.get('innerHTML'),
+            innerHTML,
             regularExpression,
             mlangtags,
             mlangtag,
             index,
             decoratedmlangtag;
+
+        // Instead of taking the HTML directly from the textarea, we have to
+        // retrieve it, first, without the <span> tags that can be stored
+        // in database, due to a bug in version 2015120501 that stores the
+        // {mlang} tags in database, with the <span> tags.
+        // More info about this bug: https://github.com/julenpardo/moodle-atto_multilang2/issues/8
+        innerHTML = this._getHTMLwithCleanedTags();
 
         regularExpression = new RegExp('{mlang.*?}', 'g');
         mlangtags = innerHTML.match(regularExpression);
@@ -274,6 +281,45 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             textarea.set('innerHTML', innerHTML);
         }
+
+    },
+
+    /**
+     * This function returns the HTML as it is in the textarea, but cleaning every
+     * <span> tag around the {mlang} tags. This is necessary for decorating tags on
+     * init, because it could happen that in database are stored the {mlang} tags with
+     * their <span> tags, due to a bug in version 2015120501.
+     * More info about this bug: https://github.com/julenpardo/moodle-atto_multilang2/issues/8
+     *
+     * @method _getHTMLwithCleanedTags
+     * @return {string} HTML in textarea, without any <span> around {mlang} tags
+     */
+    _getHTMLwithCleanedTags: function() {
+        var textarea = Y.one('#id_messageeditable'),
+            innerHTML = textarea.get('innerHTML'),
+            regexString,
+            regularExpression,
+            spanedmlangtags,
+            spanedmlangtag,
+            cleanmlangtag,
+            index;
+
+        regexString = OPENING_SPAN + '.*?' + '</span>';
+        regularExpression = new RegExp(regexString, 'g');
+        spanedmlangtags = innerHTML.match(regularExpression);
+
+        if (spanedmlangtags !== null) {
+            for (index = 0; index < spanedmlangtags.length; index++) {
+                spanedmlangtag = spanedmlangtags[index];
+
+                cleanmlangtag = spanedmlangtag.replace(OPENING_SPAN, '');
+                cleanmlangtag = cleanmlangtag.replace('</span>', '');
+
+                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
+            }
+        }
+
+        return innerHTML;
     }
 
 }, {
