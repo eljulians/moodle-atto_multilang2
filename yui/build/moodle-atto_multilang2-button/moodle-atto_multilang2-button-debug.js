@@ -214,7 +214,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             spanedmlangtag,
             index,
             cleanmlangtag,
-            regularExpression;
+            regularExpression,
+            openingspanwithyui,
+            spanedmlangtagsdwithyui,
+            mlangtag;
 
         e.preventDefault();
 
@@ -224,10 +227,32 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         regularExpression = new RegExp(OPENING_SPAN + '.*?' + '</span>', 'g');
         spanedmlangtags = innerHTML.match(regularExpression);
 
+        openingspanwithyui = OPENING_SPAN.replace('<span', '<span id="yui_.*?"');
+        regularExpression = new RegExp(openingspanwithyui + '.*?{mlang.*?}</span>', 'g');
+        
+        spanedmlangtagsdwithyui = innerHTML.match(regularExpression);
+
         if (spanedmlangtags !== null) {
             for (index = 0; index < spanedmlangtags.length; index++) {
                 spanedmlangtag = spanedmlangtags[index];
                 cleanmlangtag = spanedmlangtag.replace(OPENING_SPAN, '');
+
+                cleanmlangtag = cleanmlangtag.replace('</span>', '');
+
+                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
+            }
+
+            textarea.set('innerHTML', innerHTML);
+
+            this.markUpdated();
+        }
+
+        if (spanedmlangtagsdwithyui !== null) {
+            for (index = 0; index < spanedmlangtagsdwithyui.length; index++) {
+                spanedmlangtag = spanedmlangtagsdwithyui[index];
+                mlangtag = spanedmlangtag.match(/\{mlang.*?\}/g)[0];
+
+                cleanmlangtag = spanedmlangtag.replace(regularExpression, mlangtag);
 
                 cleanmlangtag = cleanmlangtag.replace('</span>', '');
 
