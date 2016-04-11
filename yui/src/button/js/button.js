@@ -32,11 +32,11 @@ var CLASSES = {
     ATTR_LANGUAGES = 'languages',
     ATTR_CAPABILITY = 'capability',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
-
+    OPENING_SPAN = '<span class="' + CLASSES.TAG + '">',
     TEMPLATE = '' +
-        '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
+        '&nbsp;' + OPENING_SPAN + '{mlang ' + LANG_WILDCARD + '}</span>' +
         CONTENT_WILDCARD +
-        '<span class="' + CLASSES.TAG + '">{mlang}</span>&nbsp;';
+        OPENING_SPAN + '{mlang}</span>&nbsp;';
 
 /**
  * Atto text editor multilanguage plugin.
@@ -47,10 +47,6 @@ var CLASSES = {
  */
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
-
-    _submitform: false,
-
-    _subscription: null,
 
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
@@ -71,55 +67,6 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
             this._setSubmitListener();
         }
-    },
-
-    /**
-     * Cleans the <span> tags around the {mlang} tags when the form is submitted.
-     * All the logic to remove the tags is coded inside the 'on' method closure,
-     * because seems that is not possible to define a class function that is
-     * accessible from closure scope.
-     */
-    _setSubmitListener: function() {
-        var submitbutton = Y.one('#id_submitbutton');
-
-//        this._subscription = submitbutton.on('click', this._cleanTagsOnSubmit);
-        submitbutton.on('click', this._cleanTagsOnSubmit, this);
-    },
-
-    _cleanTagsOnSubmit: function(e) {
-        var submitbutton = Y.one('#id_submitbutton'),
-            textarea,
-            innerHTML,
-            spanedmlangtags,
-            spanedmlangtag,
-            index,
-            cleanmlangtag;
-
-        e.preventDefault();
-
-        textarea = Y.one('#id_messageeditable');
-        innerHTML = textarea.get('innerHTML');
-
-        spanedmlangtags = innerHTML.match(/<span class=\"filter\-multilang\-tag\">.*?<\/span>/g);
-
-        if (spanedmlangtags !== null) {
-            for (index = 0; index < spanedmlangtags.length; index++) {
-                spanedmlangtag = spanedmlangtags[index];
-                cleanmlangtag = spanedmlangtag.replace('<span class="filter-multilang-tag">', '');
-
-                cleanmlangtag = cleanmlangtag.replace('</span>', '');
-
-                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
-            }
-
-            textarea.set('innerHTML', innerHTML);
-            textarea.set('text', innerHTML);
-            textarea.set('value', innerHTML);
-            this.markUpdated();
-        }
-        this.detach();
-
-        submitbutton.simulate('click');
     },
 
     /**
@@ -232,6 +179,66 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         if (isTextNode && isLangTag) {
             host.setSelection(host.getSelectionFromNode(Y.one(node)));
         }
+    },
+
+    /**
+     * Sets the submit listener to the function that finds the spaned {mlang} tags.
+     *
+     * @method _setSubmitListener
+     * @private
+     */
+    _setSubmitListener: function() {
+        var submitbutton = Y.one('#id_submitbutton');
+
+        submitbutton.on('click', this._cleanTagsOnSubmit, this);
+    },
+
+    /**
+     * Cleans the <span> tags around the {mlang} tags when the form is submitted.
+     * Is necessary to prevent the default action first (the form submission) to
+     * start working. When finished, with "detach", the default submit listener
+     * is restored, so the form can be submitted.
+     *
+     * @method _cleanTagsOnSubmit
+     * @param {EventFacade} e
+     * @private
+     */
+    _cleanTagsOnSubmit: function(e) {
+        var submitbutton = Y.one('#id_submitbutton'),
+            textarea,
+            innerHTML,
+            spanedmlangtags,
+            spanedmlangtag,
+            index,
+            cleanmlangtag,
+            regularExpression;
+
+        e.preventDefault();
+
+        textarea = Y.one('#id_messageeditable');
+        innerHTML = textarea.get('innerHTML');
+
+        regularExpression = new RegExp(OPENING_SPAN + '.*?' + '</span>', 'g');
+        spanedmlangtags = innerHTML.match(regularExpression);
+
+        if (spanedmlangtags !== null) {
+            for (index = 0; index < spanedmlangtags.length; index++) {
+                spanedmlangtag = spanedmlangtags[index];
+                cleanmlangtag = spanedmlangtag.replace(OPENING_SPAN, '');
+
+                cleanmlangtag = cleanmlangtag.replace('</span>', '');
+
+                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
+            }
+
+            textarea.set('innerHTML', innerHTML);
+
+            this.markUpdated();
+        }
+
+        this.detach();
+
+        submitbutton.simulate('click');
     }
 
 }, {
