@@ -55,6 +55,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             toolbarItems = [];
 
         if (hascapability) {
+            this._decorateTagsOnInit();
             toolbarItems = this._initializeToolbarItems();
 
             this.addToolbarMenu({
@@ -241,6 +242,40 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         this.detach();
 
         submitbutton.simulate('click');
+    },
+
+    /**
+     * Adds the <span> tags to the {mlang} tags when the editor is loaded.
+     * In this case, we DON'T HAVE TO CALL TO markUpdated(). Why? Honestly,
+     * I don't know. But, if we call it after setting the HTML, the {mlang}
+     * tags flicker with the decoration, and returns to their original state.
+     *
+     * @method _decorateTagsOnInit
+     * @private
+     */
+    _decorateTagsOnInit: function() {
+        var textarea = Y.one('#id_messageeditable'),
+            innerHTML = textarea.get('innerHTML'),
+            regularExpression,
+            mlangtags,
+            mlangtag,
+            index,
+            decoratedmlangtag;
+
+        regularExpression = new RegExp('{mlang.*?}', 'g');
+        mlangtags = innerHTML.match(regularExpression);
+
+        if (mlangtags !== null) {
+            for (index = 0; index < mlangtags.length; index++) {
+                mlangtag = mlangtags[index];
+
+                decoratedmlangtag = OPENING_SPAN + mlangtag + '</span>';
+
+                innerHTML = innerHTML.replace(mlangtag, decoratedmlangtag);
+            }
+
+            textarea.set('innerHTML', innerHTML);
+        }
     }
 
 }, {
