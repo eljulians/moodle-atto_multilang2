@@ -34,4 +34,5 @@ Feature: Atto multilanguage list
     And I set the field "Text editor" to "Plain text area"
     And I press "Save changes"
     And I follow "Edit profile"
-    Then I should see "<span class=\"filter-multilang-tag\">{mlang en}</span>Multilingual content, again<span class=\"filter-multilang-tag\">{mlang}</span>"
+    Then I should see "{mlang en}Multilingual content, again{mlang}"
+
