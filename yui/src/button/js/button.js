@@ -31,12 +31,18 @@ var CLASSES = {
     CONTENT_WILDCARD = '%content',
     ATTR_LANGUAGES = 'languages',
     ATTR_CAPABILITY = 'capability',
+    ATTR_HIGHLIGHT = 'highlight',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
+    DEFAULT_CAPABILITY = true,
+    DEFAULT_HIGHLIGHT = true,
 
-    TEMPLATE = '' +
-        '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
-        CONTENT_WILDCARD +
-        '<span class="' + CLASSES.TAG + '">{mlang}</span>&nbsp;';
+    TEMPLATES = {
+        SPANED: '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
+            CONTENT_WILDCARD +
+            '<span class="' + CLASSES.TAG + '">{mlang}</span>&nbsp;',
+
+        NOT_SPANED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
+    };
 
 /**
  * Atto text editor multilanguage plugin.
@@ -48,12 +54,22 @@ var CLASSES = {
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
+    /**
+     * If the {mlang} tags have to be highlighted or not. Received as parameter from lib.php.
+     *
+     * @property _highlight
+     * @type boolean
+     * @private
+     */
+    _highlight: true,
+
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
             toolbarItems = [];
 
         if (hascapability) {
             toolbarItems = this._initializeToolbarItems();
+            this._highlight = this.get(ATTR_HIGHLIGHT);
 
             this.addToolbarMenu({
                 globalItemConfig: {
@@ -99,6 +115,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * Retrieves the selected text, wraps it with the multilang tags,
      * and replaces the selected text in the editor with with it.
      *
+     * If the 'highlight' setting is checked, the {mlang} will be wrapped between
+     * the <span> tags with the class for the CSS highlight; if not, they will not
+     * be wrapped.
+     *
      * If there is no content selected, a "&nbsp;" will be inserted; otherwhise,
      * it's impossible to place the cursor inside the {mlang} tags.
      *
@@ -110,8 +130,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _addTags: function(e, langCode) {
         var selection,
             host = this.get('host'),
-            taggedContent = TEMPLATE,
+            taggedContent,
             content;
+
+        taggedContent = (this._highlight) ? TEMPLATES.SPANED : TEMPLATES.NOT_SPANED;
 
         selection = this._getSelectionHTML();
         content = (host.getSelection().toString().length === 0) ? '&nbsp;' : selection;
@@ -183,13 +205,30 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 }, {
     ATTRS: {
         /**
-         * The list of installed languages
+         * The list of installed languages.
          *
          * @attribute languages
          * @type array
          * @default {"en":"English (en)"}
          */
         languages: DEFAULT_LANGUAGE,
-        capability: true
+
+        /**
+         * If the current user has the capability to use the plugin.
+         *
+         * @attribute capability
+         * @type boolean
+         * @default true
+         */
+        capability: DEFAULT_CAPABILITY,
+
+        /**
+         * If the {mlang} tags have to be highlighted or not.
+         *
+         * @property highlight
+         * @type boolean
+         * @default true
+         */
+        highlight: DEFAULT_HIGHLIGHT
     }
 });
