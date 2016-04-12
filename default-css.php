@@ -15,15 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for 'Atto Multilang v2' plugin.
+ * Multi-language default CSS settings.
  *
- * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    atto_multilang2
+ * @copyright  2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Multi-Language Content (v2)';
-$string['highlight'] = 'Highlight delimiters';
-$string['highlight_desc'] = 'Visually highlight the multi-language content delimiters (i.e., {mlang XX} and {mlang}) in the editor.';
-$string['customcss'] = 'CSS for delimiters';
-$string['customcss_desc'] = 'CSS used to highlight the multi-language content delimiters.';
+$multilang2_default_css = <<< EOF
+
+outline: 1px dotted;
+padding: 0.1em;
+margin: 0em 0.1em;
+background-color: #ffffaa;
+
+EOF
+;

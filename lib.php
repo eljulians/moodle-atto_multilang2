@@ -51,4 +51,3 @@ function get_capability() {
 
     return has_capability('atto/multilang2:viewlanguagemenu', $context);
 }
-
