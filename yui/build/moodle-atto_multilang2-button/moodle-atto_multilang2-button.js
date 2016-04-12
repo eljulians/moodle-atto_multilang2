@@ -313,6 +313,16 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * I don't know. But, if we call it after setting the HTML, the {mlang}
      * tags flicker with the decoration, and returns to their original state.
      *
+     * Instead of taking the HTML directly from the textarea, we have to
+     * retrieve it, first, without the <span> tags that can be stored
+     * in database, due to a bug in version 2015120501 that stores the
+     * {mlang} tags in database, with the <span> tags.
+     * More info about this bug: https://github.com/julenpardo/moodle-atto_multilang2/issues/8
+     *
+     * Every different {mlang} tag has to be replaced only once, otherwise,
+     * nested <span>s will be created in every repeated replacement. So, we
+     * have to have a track of which replacements have been made.
+     *
      * @method _decorateTagsOnInit
      * @private
      */
@@ -323,13 +333,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             mlangtags,
             mlangtag,
             index,
-            decoratedmlangtag;
+            decoratedmlangtag,
+            replacementsmade = [],
+            notreplacedyet;
 
-        // Instead of taking the HTML directly from the textarea, we have to
-        // retrieve it, first, without the <span> tags that can be stored
-        // in database, due to a bug in version 2015120501 that stores the
-        // {mlang} tags in database, with the <span> tags.
-        // More info about this bug: https://github.com/julenpardo/moodle-atto_multilang2/issues/8
         innerHTML = this._getHTMLwithCleanedTags();
 
         regularExpression = new RegExp('{mlang.*?}', 'g');
@@ -339,9 +346,16 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             for (index = 0; index < mlangtags.length; index++) {
                 mlangtag = mlangtags[index];
 
-                decoratedmlangtag = OPENING_SPAN + mlangtag + '</span>';
+                notreplacedyet = replacementsmade.indexOf(mlangtag) === -1;
 
-                innerHTML = innerHTML.replace(mlangtag, decoratedmlangtag);
+                if (notreplacedyet) {
+                    replacementsmade.push(mlangtag);
+
+                    decoratedmlangtag = OPENING_SPAN + mlangtag + '</span>';
+                    regularExpression = new RegExp(mlangtag, 'g');
+
+                    innerHTML = innerHTML.replace(regularExpression, decoratedmlangtag);
+                }
             }
 
             textarea.set('innerHTML', innerHTML);
