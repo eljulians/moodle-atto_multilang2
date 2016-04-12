@@ -22,5 +22,5 @@
  */
 
 $string['pluginname'] = 'Contenido Multi-Idioma (v2)';
-$string['multilang2:viewlanguagemenu'] = 'Ver el menú de idiomas en la barra de herramientas de Atto.';
-
+$string['highlight'] = 'Destacar los delimitadores';
+$string['highlight_desc'] = 'Destacar visualmente los delimitadores del contenido multi-idioma (esto es, {mlang XX} y {mlang}) en el editor.';

@@ -22,5 +22,5 @@
  */
 
 $string['pluginname'] = 'Eduki Eleanitza (v2)';
-$string['multilang2:viewlanguagemenu'] = 'Erakutsi hizkuntzen menua Atto tresna barran.';
-
+$string['highlight'] = 'Mugatzaileak nabarmendu';
+$string['highlight_desc'] = 'Bisualki nabarmendu multi-hizkuntza eduki mugatzaileak (hau da, {mlang XX} eta {mlang}) editorean.';

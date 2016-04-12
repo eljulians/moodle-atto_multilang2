@@ -13,14 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Strings for 'Atto Multilang v2' plugin.
+ * Atto text editor multilanguage plugin settings.
  *
  * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Multi-Language Content (v2)';
-$string['highlight'] = 'Highlight delimiters';
-$string['highlight_desc'] = 'Visually highlight the multi-language content delimiters (i.e., {mlang XX} and {mlang}) in the editor.';
+defined('MOODLE_INTERNAL') || die();
+
+$settings->add(new admin_setting_configcheckbox('atto_multilang2/highlight', get_string('highlight',
+    'atto_multilang2'), get_string('highlight_desc', 'atto_multilang2'), 1));
