@@ -32,10 +32,14 @@ var CLASSES = {
     ATTR_LANGUAGES = 'languages',
     ATTR_CAPABILITY = 'capability',
     ATTR_HIGHLIGHT = 'highlight',
+    ATTR_CSS = 'css',
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
     DEFAULT_CAPABILITY = true,
     DEFAULT_HIGHLIGHT = true,
-
+    DEFAULT_CSS =  'outline: 1px dotted;' +
+                   'padding: 0.1em;' +
+                   'margin: 0em 0.1em;' +
+                   'background-color: #ffffaa;',
     TEMPLATES = {
         SPANED: '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
             CONTENT_WILDCARD +
@@ -81,7 +85,28 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             });
 
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
+
+            if (this._highlight) {
+                this._addDelimiterCss();
+            }
         }
+    },
+
+    /**
+     * Adds the CSS rules for the delimiters, received as parameter from lib.php.
+     *
+     * @method _addDelimiterCss
+     * @private
+     */
+    _addDelimiterCss: function() {
+        var css = '.' + CLASSES.TAG + '{' + this.get(ATTR_CSS) + '}',
+            style;
+
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+
+        document.head.appendChild(style);
     },
 
     /**
@@ -229,6 +254,15 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
          * @type boolean
          * @default true
          */
-        highlight: DEFAULT_HIGHLIGHT
+        highlight: DEFAULT_HIGHLIGHT,
+
+        /**
+         * The CSS for delimiters.
+         *
+         * @property css
+         * @type string
+         * @default DEFAULT_CSS
+         */
+        css: DEFAULT_CSS
     }
 });

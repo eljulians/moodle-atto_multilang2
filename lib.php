@@ -33,10 +33,12 @@ function atto_multilang2_params_for_js() {
     $languages = json_encode(get_string_manager()->get_list_of_translations());
     $capability = get_capability();
     $highlight = (get_config('atto_multilang2', 'highlight') === '1') ? true : false;
+    $css = get_config('atto_multilang2', 'customcss');
 
     return array('languages' => $languages,
                  'capability' => $capability,
-                 'highlight' => $highlight);
+                 'highlight' => $highlight,
+                 'css' => $css);
 }
 
 /**
