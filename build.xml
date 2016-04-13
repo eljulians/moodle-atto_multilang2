@@ -5,57 +5,34 @@
     <property name="moodle.git" value="${workspace.dir}/moodle/"/>
     <property name="parameter.version" value=""/>
     <property name="version.dir" value="${workspace.dir}/target/${parameter.version}"/>
-    <property name="config.path" value="${env.JENKINS_HOME}/moodle-config/config.php"/>
+    <property name="config.path" value="${env.JENKINS_HOME}/moodle-config/config-${parameter.version}.php"/>
     <property name="atto_multilang2.install.path" value="${version.dir}/lib/editor/atto/plugins/multilang2"/>
-    <property name="behat.wwwroot" value="/var/www/html/behat"/>
-    <property name="behat.yml" value="/var/behat_moodle/behat/behat.yml"/>
+    <property name="behat.wwwroot" value="/var/www/html/behat_${parameter.version}"/>
+    <property name="behat.dataroot" value="/var/behat_${parameter.version}"/>
+    <property name="behat.yml" value="${behat.dataroot}/behat/behat.yml"/>
     <property name="selenium.version" value="2.48.2"/>
     <property name="selenium.path" value="${env.JENKINS_HOME}/selenium/selenium-server-standalone-${selenium.version}.jar"/>
     <property name="error.code" value="1"/>
+    <property name="success.code" value="0"/>
 
-    <property name="jscs.exec" value="jscs yui/src/button/js/button.js --preset=moodle-javascript_style_checker/moodle.jscsrc"/>
-    <property name="jscs.success" value="Success checking code style with JSCS."/>
-    <property name="jscs.fail" value="${line.separator}Failed checking code style:${line.separator}"/>
-    <property name="shifter.exec" value="shifter --no-lint --recursive"/>
+    <property name="shifter.exec" value="shifter --recursive"/>
     <property name="shifter.dir" value="yui/src/button/"/>
-    <property name="shifter.success" value="Success building with Shifter."/>
+    <property name="shifter.success" value="Success linting building with Shifter."/>
     <property name="shifter.fail" value="${line.separator}Shifter build failed:${line.separator}"/>
 
-
-    <target name="atto_multilang2_clone">
-        <exec command="git init" dir="${workspace.dir}/moodle-atto_multilang2"/>
-        <exec command="git remote add origin https://github.com/julenpardo/moodle-atto_multilang2.git" dir="${workspace.dir}/moodle-atto_multilang2"/>
-        <exec command="git pull &amp;&amp; git submodule init &amp;&amp; git submodule update &amp;&amp; git submodule status" dir="${workspace.dir}/moodle-atto_multilang2" outputProperty="atto_multilang2_pull.output"/>
-        <echo msg="${atto_multilang2_pull.output}"/>
-    </target>
-
-
-    <target name="jscs" depends="atto_multilang2_clone">
-        <exec command="${jscs.exec}" returnProperty="jscs.status" outputProperty="jscs.output"/>
-            <if>
-                <equals arg1="${jscs.status}" arg2="${error.code}"/>
-                <then>
-                    <fail message="${jscs.fail} ${jscs.output}"/>
-                </then>
-                <else>
-                    <echo msg="${jscs.success}"/>
-                </else>
-            </if>
-    </target>
-
-    <target name="shifter" depends="jscs">
+    <target name="shifter">
         <exec command="${shifter.exec}" dir="${shifter.dir}" returnProperty="shifter.status" outputProperty="shifter.output"/>
-            <if>
-                <equals arg1="${shifter.status}" arg2="${error.code}"/>
-                <then>
-                    <fail message="${shifter.fail} ${shifter.output}"/>
-                </then>
-                <else>
-                    <echo msg="${shifter.success}"/>
-                </else>
-            </if>
-    </target>
+        <if>
+            <not>
+                <equals arg1="${shifter.status}" arg2="${success.code}"/>
+            </not>
+            <then>
+                <fail message="${shifter.fail} ${shifter.output}"/>
+            </then>
+        </if>
 
+        <echo msg="${shifter.success}"/>
+    </target>
 
     <target name="moodle_pull">
         <mkdir dir="${moodle.git}"/>
@@ -72,7 +49,7 @@
         <exec command="cp ${config.path} config.php" dir="${version.dir}"/>
     </target>
 
-    <target name="atto_multilang2_install" depends="atto_multilang2_clone, moodle_install">
+    <target name="atto_multilang2_install" depends="moodle_install">
         <copy todir="${atto_multilang2.install.path}">
             <fileset dir="${workspace.dir}/moodle-atto_multilang2/">
                 <exclude name="build.xml"/>
@@ -114,3 +91,4 @@
     </target>
 
 </project>
+
