@@ -26,4 +26,5 @@ $string['pluginname'] = 'Contenido Multi-Idioma (v2)';
 $string['highlight'] = 'Destacar los delimitadores';
 $string['highlight_desc'] = 'Destacar visualmente los delimitadores del contenido multi-idioma (esto es, {mlang XX} y {mlang}) en el editor.';
 $string['customcss'] = 'CSS para los delimitadores';
-$string['customcss_desc'] = 'CSS usado para destacar los delimitadores del contenido multi-idioma.';
+$string['customcss_desc'] = "<br>CSS usado para destacar los delimitadores del contenido multi-idioma.
+<p><b>Atenci&oacute;n:</b> poner solo las EL CUERPO DE LAS REGLAS CSS, excluyendo los selectores, tal y como aparece en el valor por defecto.</p>";

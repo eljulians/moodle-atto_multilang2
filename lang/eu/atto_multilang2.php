@@ -26,4 +26,5 @@ $string['pluginname'] = 'Eduki Eleanitza (v2)';
 $string['highlight'] = 'Mugatzaileak nabarmendu';
 $string['highlight_desc'] = 'Bisualki nabarmendu multi-hizkuntza eduki mugatzaileak (hau da, {mlang XX} eta {mlang}) editorean.';
 $string['customcss'] = 'CSS mugatzaileentzat';
-$string['customcss_desc'] = 'Erabilitako CSS-a multi-hizkuntza eduki mugatzaileentzat.';
+$string['customcss_desc'] = "<br>Erabilitako CSS-a multi-hizkuntza eduki mugatzaileentzat.
+<p><b>Kontuz:</b> jarri soilik CSS GORPUTZAREN ARAUAK, selektoreak baztertuz, lehenetsitako balorean bezala.</p>";
