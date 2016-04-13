@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Strings for 'Atto Multilang v2' plugin.
  *
@@ -22,3 +23,8 @@
  */
 
 $string['pluginname'] = 'Multi-Language Content (v2)';
+$string['highlight'] = 'Highlight delimiters';
+$string['highlight_desc'] = 'Visually highlight the multi-language content delimiters (i.e., {mlang XX} and {mlang}) in the editor.';
+$string['customcss'] = 'CSS for delimiters';
+$string['customcss_desc'] = "<br>CSS used to highlight the multi-language content delimiters.
+<p><b>Attention:</b> just put the CSS BODY RULES, excluding the selectors, just as it appears in the default value.</p>";

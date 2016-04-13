@@ -15,16 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for 'Atto Multilang v2' plugin.
+ * Atto text editor multilanguage plugin settings.
  *
  * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Eduki Eleanitza (v2)';
-$string['highlight'] = 'Mugatzaileak nabarmendu';
-$string['highlight_desc'] = 'Bisualki nabarmendu multi-hizkuntza eduki mugatzaileak (hau da, {mlang XX} eta {mlang}) editorean.';
-$string['customcss'] = 'CSS mugatzaileentzat';
-$string['customcss_desc'] = "<br>Erabilitako CSS-a multi-hizkuntza eduki mugatzaileentzat.
-<p><b>Kontuz:</b> jarri soilik CSS GORPUTZAREN ARAUAK, selektoreak baztertuz, lehenetsitako balorean bezala.</p>";
+defined('MOODLE_INTERNAL') || die();
+
+require(dirname(__FILE__)) . '/default-css.php';
+
+$settings->add(new admin_setting_configcheckbox('atto_multilang2/highlight',
+    get_string('highlight', 'atto_multilang2'), get_string('highlight_desc', 'atto_multilang2'), 1));
+$settings->add(new admin_setting_configtextarea('atto_multilang2/customcss',
+    get_string('customcss', 'atto_multilang2'), get_string('customcss_desc', 'atto_multilang2'),
+    $multilang2_default_css, PARAM_RAW));
