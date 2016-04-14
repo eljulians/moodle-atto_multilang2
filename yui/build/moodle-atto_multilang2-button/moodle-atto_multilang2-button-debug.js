@@ -102,9 +102,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             if (this._highlight) {
                 this._addDelimiterCss();
                 this._decorateTagsOnInit();
+                this._setSubmitListeners();
             }
-
-            this._setSubmitListeners();
         }
     },
 
@@ -248,6 +247,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      *
      * In some forms, there may be two different submit buttons, so we add the listener
      * to the second, if this exists.
+     *
+     * These submit listeners are set only if the "highlight" plugin setting is checked.
      *
      * @method _setSubmitListener
      * @private
