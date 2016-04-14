@@ -68,6 +68,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _highlight: true,
 
+    /**
+     * If the {mlang} tags have been cleaned on submit, to check if they have to be cleaned,
+     * or if the form has to be submitted.
+     *
+     * @property _tagsCleaned
+     * @type boolean
+     * @private
+     */
     _tagsCleaned: false,
 
     initializer: function() {
@@ -94,7 +102,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
                 this._decorateTagsOnInit();
             }
 
-            this._setSubmitListener();
+            this._setSubmitListeners();
         }
     },
 
@@ -242,7 +250,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @method _setSubmitListener
      * @private
      */
-    _setSubmitListener: function() {
+    _setSubmitListeners: function() {
         var submitbutton = Y.one('#id_submitbutton'),
             submitbutton2 = Y.one('#id_submitbutton2');
 
