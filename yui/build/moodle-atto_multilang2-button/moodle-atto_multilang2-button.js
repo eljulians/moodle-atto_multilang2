@@ -70,12 +70,21 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _highlight: true,
 
+    /**
+     * If the {mlang} tags have been cleaned on submit, to check if they have to be cleaned,
+     * or if the form has to be submitted.
+     *
+     * @property _tagsCleaned
+     * @type boolean
+     * @private
+     */
+    _tagsCleaned: false,
+
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
             toolbarItems = [];
 
         if (hascapability) {
-            this._decorateTagsOnInit();
             toolbarItems = this._initializeToolbarItems();
             this._highlight = this.get(ATTR_HIGHLIGHT);
 
@@ -92,9 +101,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             if (this._highlight) {
                 this._addDelimiterCss();
+                this._decorateTagsOnInit();
             }
 
-            this._setSubmitListener();
+            this._setSubmitListeners();
         }
     },
 
@@ -236,13 +246,21 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     /**
      * Sets the submit listener to the function that finds the spaned {mlang} tags.
      *
+     * In some forms, there may be two different submit buttons, so we add the listener
+     * to the second, if this exists.
+     *
      * @method _setSubmitListener
      * @private
      */
-    _setSubmitListener: function() {
-        var submitbutton = Y.one('#id_submitbutton');
+    _setSubmitListeners: function() {
+        var submitbutton = Y.one('#id_submitbutton'),
+            submitbutton2 = Y.one('#id_submitbutton2');
 
         submitbutton.on('click', this._cleanTagsOnSubmit, this);
+
+        if (submitbutton2 !== null) {
+            submitbutton2.on('click', this._cleanTagsOnSubmitSecondButton, this);
+        }
     },
 
     /**
@@ -260,10 +278,41 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _cleanTagsOnSubmit: function(e) {
         var submitbutton = Y.one('#id_submitbutton');
 
-        e.preventDefault();
+        if (!this._tagsCleaned) {
+            e.preventDefault();
 
-        this._cleanTagsWithNoYuiId();
-        this._cleanTagsWithYuiId();
+            this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
+
+            this._tagsCleaned = true;
+        }
+
+        this.detach();
+
+        submitbutton.simulate('click');
+    },
+
+    /**
+     * The page may have more than one submit buttons, e.g., for saving and displaying, and for
+     * saving and returning to course.
+     * The easiest way to determine which event is the "triggerer", is to assign a different listener
+     * to each one, and this is the one for the second button that the page could have.
+     *
+     * @method _cleanTagsOnSubmitSecondButton
+     * @param {EventFacade} e
+     * @private
+     */
+    _cleanTagsOnSubmitSecondButton: function(e) {
+        var submitbutton = Y.one('#id_submitbutton2');
+
+        if (!this._tagsCleaned) {
+            e.preventDefault();
+
+            this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
+
+            this._tagsCleaned = true;
+        }
 
         this.detach();
 
@@ -276,11 +325,19 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * The cleanup with "id" attribute and without it is made separately, to avoid an evil
      * regular expression.
      *
+     * There may be more than one atto editor textarea in the page. So, we have to retrieve
+     * the textareas by the class name. If there is only one, the object will be only the
+     * reference, but, if there are more, we will have an array. So, the easiest way is to
+     * check if what we have is an array, and if it not, create it manually, and iterate it
+     * later.
+     *
      * @method _cleanTagsWithNoYuiId
      * @private
      */
     _cleanTagsWithNoYuiId: function() {
-        var textarea,
+        var textareas = Y.all('.editor_atto_content'),
+            textarea,
+            textareaIndex,
             innerHTML,
             spanedmlangtags,
             spanedmlangtag,
@@ -288,13 +345,26 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             cleanmlangtag,
             regularExpression;
 
-        textarea = Y.one('#id_messageeditable');
-        innerHTML = textarea.get('innerHTML');
-
         regularExpression = new RegExp(OPENING_SPAN + '.*?' + '</span>', 'g');
-        spanedmlangtags = innerHTML.match(regularExpression);
 
-        if (spanedmlangtags !== null) {
+        if (!textareas instanceof Array) {
+            textarea = textareas;
+            textareas = [];
+            textareas[0] = textarea;
+        }
+
+        for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
+            textarea = textareas._nodes[textareaIndex].id;
+            textarea = Y.one('#' + textarea);
+
+            innerHTML = textarea.get('innerHTML');
+
+            spanedmlangtags = innerHTML.match(regularExpression);
+
+            if (spanedmlangtags === null) {
+                continue;
+            }
+            
             for (index = 0; index < spanedmlangtags.length; index++) {
                 spanedmlangtag = spanedmlangtags[index];
                 cleanmlangtag = spanedmlangtag.replace(OPENING_SPAN, '');
@@ -305,9 +375,9 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             }
 
             textarea.set('innerHTML', innerHTML);
-
-            this.markUpdated();
         }
+
+        this.markUpdated();
     },
 
     /**
@@ -316,11 +386,19 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * The cleanup with "id" attribute and without it is made separately, to avoid an evil
      * regular expression.
      *
+     * There may be more than one atto editor textarea in the page. So, we have to retrieve
+     * the textareas by the class name. If there is only one, the object will be only the
+     * reference, but, if there are more, we will have an array. So, the easiest way is to
+     * check if what we have is an array, and if it not, create it manually, and iterate it
+     * later.
+     *
      * @method anTagsWithYuiId
      * @private
      */
      _cleanTagsWithYuiId: function() {
-        var textarea,
+        var textareas = Y.all('.editor_atto_content'),
+            textarea,
+            textareaIndex,
             innerHTML,
             spanedmlangtag,
             index,
@@ -330,21 +408,32 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             spanedmlangtagsdwithyui,
             mlangtag;
 
-        textarea = Y.one('#id_messageeditable');
-        innerHTML = textarea.get('innerHTML');
-
         openingspanwithyui = OPENING_SPAN.replace('<span', '<span id="yui_.*?"');
         regularExpression = new RegExp(openingspanwithyui + '.*?{mlang.*?}</span>', 'g');
-        
-        spanedmlangtagsdwithyui = innerHTML.match(regularExpression);
 
-        if (spanedmlangtagsdwithyui !== null) {
+        if (!textareas instanceof Array) {
+            textarea = textareas;
+            textareas = [];
+            textareas[0] = textarea;
+        }
+        
+        for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
+            textarea = textareas._nodes[textareaIndex].id;
+            textarea = Y.one('#' + textarea);
+
+            innerHTML = textarea.get('innerHTML');
+
+            spanedmlangtagsdwithyui = innerHTML.match(regularExpression);
+
+            if (spanedmlangtagsdwithyui === null) {
+                continue;
+            }
+            
             for (index = 0; index < spanedmlangtagsdwithyui.length; index++) {
                 spanedmlangtag = spanedmlangtagsdwithyui[index];
                 mlangtag = spanedmlangtag.match(/\{mlang.*?\}/g)[0];
 
                 cleanmlangtag = spanedmlangtag.replace(regularExpression, mlangtag);
-
                 cleanmlangtag = cleanmlangtag.replace('</span>', '');
 
                 innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
@@ -376,7 +465,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @private
      */
     _decorateTagsOnInit: function() {
-        var textarea = Y.one('#id_messageeditable'),
+        var textarea = Y.all('.editor_atto_content'),
             innerHTML,
             regularExpression,
             mlangtags,
@@ -423,8 +512,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @return {string} HTML in textarea, without any <span> around {mlang} tags
      */
     _getHTMLwithCleanedTags: function() {
-        var textarea = Y.one('#id_messageeditable'),
-            innerHTML = textarea.get('innerHTML'),
+        var host = this.get('host'),
+            innerHTML = host.getCleanHTML(),
             regexString,
             regularExpression,
             spanedmlangtags,
