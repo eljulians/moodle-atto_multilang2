@@ -234,13 +234,21 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     /**
      * Sets the submit listener to the function that finds the spaned {mlang} tags.
      *
+     * In some forms, there may be two different submit buttons, so we add the listener
+     * to the second, if this exists.
+     *
      * @method _setSubmitListener
      * @private
      */
     _setSubmitListener: function() {
-        var submitbutton = Y.one('#id_submitbutton');
+        var submitbutton = Y.one('#id_submitbutton'),
+            submitbutton2 = Y.one('#id_submitbutton2');
 
         submitbutton.on('click', this._cleanTagsOnSubmit, this);
+
+        if (submitbutton2 !== null) {
+            submitbutton2.on('click', this._cleanTagsOnSubmit, this);
+        }
     },
 
     /**
