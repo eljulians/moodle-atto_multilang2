@@ -274,10 +274,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             e.preventDefault();
 
             this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
 
             this._tagsCleaned = true;
         }
-        //this._cleanTagsWithYuiId();
 
         this.detach();
 
@@ -326,10 +326,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             spanedmlangtags = innerHTML.match(regularExpression);
 
-            console.log(textareaIndex);
-
             if (spanedmlangtags === null) {
-                break;
+                continue;
             }
             
             for (index = 0; index < spanedmlangtags.length; index++) {
@@ -353,11 +351,19 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * The cleanup with "id" attribute and without it is made separately, to avoid an evil
      * regular expression.
      *
+     * There may be more than one atto editor textarea in the page. So, we have to retrieve
+     * the textareas by the class name. If there is only one, the object will be only the
+     * reference, but, if there are more, we will have an array. So, the easiest way is to
+     * check if what we have is an array, and if it not, create it manually, and iterate it
+     * later.
+     *
      * @method anTagsWithYuiId
      * @private
      */
      _cleanTagsWithYuiId: function() {
-        var textarea,
+        var textareas = Y.all('.editor_atto_content'),
+            textarea,
+            textareaIndex,
             innerHTML,
             spanedmlangtag,
             index,
@@ -367,21 +373,32 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             spanedmlangtagsdwithyui,
             mlangtag;
 
-        textarea = Y.one('#id_messageeditable');
-        innerHTML = textarea.get('innerHTML');
-
         openingspanwithyui = OPENING_SPAN.replace('<span', '<span id="yui_.*?"');
         regularExpression = new RegExp(openingspanwithyui + '.*?{mlang.*?}</span>', 'g');
-        
-        spanedmlangtagsdwithyui = innerHTML.match(regularExpression);
 
-        if (spanedmlangtagsdwithyui !== null) {
+        if (!textareas instanceof Array) {
+            textarea = textareas;
+            textareas = [];
+            textareas[0] = textarea;
+        }
+        
+        for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
+            textarea = textareas._nodes[textareaIndex].id;
+            textarea = Y.one('#' + textarea);
+
+            innerHTML = textarea.get('innerHTML');
+
+            spanedmlangtagsdwithyui = innerHTML.match(regularExpression);
+
+            if (spanedmlangtagsdwithyui === null) {
+                continue;
+            }
+            
             for (index = 0; index < spanedmlangtagsdwithyui.length; index++) {
                 spanedmlangtag = spanedmlangtagsdwithyui[index];
                 mlangtag = spanedmlangtag.match(/\{mlang.*?\}/g)[0];
 
                 cleanmlangtag = spanedmlangtag.replace(regularExpression, mlangtag);
-
                 cleanmlangtag = cleanmlangtag.replace('</span>', '');
 
                 innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
