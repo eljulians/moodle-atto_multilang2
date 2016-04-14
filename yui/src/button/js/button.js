@@ -73,7 +73,6 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             toolbarItems = [];
 
         if (hascapability) {
-            this._decorateTagsOnInit();
             toolbarItems = this._initializeToolbarItems();
             this._highlight = this.get(ATTR_HIGHLIGHT);
 
@@ -89,6 +88,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
 
             if (this._highlight) {
+                this._decorateTagsOnInit();
                 this._addDelimiterCss();
             }
 
@@ -374,7 +374,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @private
      */
     _decorateTagsOnInit: function() {
-        var textarea = Y.one('#id_messageeditable'),
+        var textarea = Y.all('.editor_atto_content'),
             innerHTML,
             regularExpression,
             mlangtags,
@@ -421,8 +421,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @return {string} HTML in textarea, without any <span> around {mlang} tags
      */
     _getHTMLwithCleanedTags: function() {
-        var textarea = Y.one('#id_messageeditable'),
-            innerHTML = textarea.get('innerHTML'),
+        var host = this.get('host'),
+            innerHTML = host.getCleanHTML(),
             regexString,
             regularExpression,
             spanedmlangtags,
