@@ -245,14 +245,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @private
      */
     _setSubmitListener: function() {
-        var submitbutton = Y.one('#id_submitbutton')/*,
-            submitbutton2 = Y.one('#id_submitbutton2')*/;
+        var submitbutton = Y.one('#id_submitbutton'),
+            submitbutton2 = Y.one('#id_submitbutton2');
 
         submitbutton.on('click', this._cleanTagsOnSubmit, this);
-/*
+
         if (submitbutton2 !== null) {
-            submitbutton2.on('click', this._cleanTagsOnSubmit, this);
-        }*/
+            submitbutton2.on('click', this._cleanTagsOnSubmitSecondButton, this);
+        }
     },
 
     /**
@@ -269,6 +269,33 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _cleanTagsOnSubmit: function(e) {
         var submitbutton = Y.one('#id_submitbutton');
+
+        if (!this._tagsCleaned) {
+            e.preventDefault();
+
+            this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
+
+            this._tagsCleaned = true;
+        }
+
+        this.detach();
+
+        submitbutton.simulate('click');
+    },
+
+    /**
+     * The page may have more than one submit buttons, e.g., for saving and displaying, and for
+     * saving and returning to course.
+     * The easiest way to determine which event is the "triggerer", is to assign a different listener
+     * to each one, and this is the one for the second button that the page could have.
+     *
+     * @method _cleanTagsOnSubmitSecondButton
+     * @param {EventFacade} e
+     * @private
+     */
+    _cleanTagsOnSubmitSecondButton: function(e) {
+        var submitbutton = Y.one('#id_submitbutton2');
 
         if (!this._tagsCleaned) {
             e.preventDefault();
