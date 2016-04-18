@@ -99,11 +99,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
 
-            if (this._highlight) {
-                this._addDelimiterCss();
-                this._decorateTagsOnInit();
-                this._setSubmitListeners();
-            }
+            Y.on('domready', function() {
+                if (this._highlight) {
+                    this._addDelimiterCss();
+                    this._decorateTagsOnInit();
+                    this._setSubmitListeners();
+                }
+            });
         }
     },
 
@@ -258,6 +260,9 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             submitbutton2 = Y.one('#id_submitbutton2');
 
         submitbutton.on('click', this._cleanTagsOnSubmit, this);
+        submitbutton.set('asdf', 'a');
+        console.log('submitbutton: ');
+        console.log(submitbutton);
 
         if (submitbutton2 !== null) {
             submitbutton2.on('click', this._cleanTagsOnSubmitSecondButton, this);
@@ -288,7 +293,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             this._tagsCleaned = true;
         }
 
-        this.detach();
+        this.detachAll();
 
         submitbutton.simulate('click');
     },
