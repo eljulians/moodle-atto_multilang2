@@ -97,9 +97,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
 
+            this._addDelimiterCss();
+
             Y.on('domready', function() {
                 if (this._highlight) {
-                    this._addDelimiterCss();
                     this._decorateTagsOnInit();
                     this._setSubmitListeners();
                 }
