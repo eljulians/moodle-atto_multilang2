@@ -99,12 +99,22 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this._addDelimiterCss();
 
-            Y.on('domready', function() {
-                if (this._highlight) {
-                    this._decorateTagsOnInit();
-                    this._setSubmitListeners();
-                }
-            });
+            Y.on('domready', this._domReady, this);
+        }
+    },
+
+    /**
+     * When the DOM is ready, decorates the {mlang} tags, and sets the submit listeners. This has to be done when the DOM is ready;
+     * otherwise, it will set as many listeners as Atto editors are in the page.
+     *
+     * @method _domReady
+     * @parma {EventFacade} e
+     * @private
+     */
+    _domReady: function(e) {
+        if (this._highlight) {
+            this._decorateTagsOnInit();
+            this._setSubmitListeners();
         }
     },
 
@@ -259,9 +269,6 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             submitbutton2 = Y.one('#id_submitbutton2');
 
         submitbutton.on('click', this._cleanTagsOnSubmit, this);
-        submitbutton.set('asdf', 'a');
-        console.log('submitbutton: ');
-        console.log(submitbutton);
 
         if (submitbutton2 !== null) {
             submitbutton2.on('click', this._cleanTagsOnSubmitSecondButton, this);
@@ -292,7 +299,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             this._tagsCleaned = true;
         }
 
-        this.detachAll();
+        this.detach();
 
         submitbutton.simulate('click');
     },
