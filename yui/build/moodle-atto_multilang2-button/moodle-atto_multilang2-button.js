@@ -102,7 +102,9 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this._addDelimiterCss();
 
-            addSubmitListeners = (typeof window.multilang2_addedListeners === 'undefined') || window.multilang2_addedListeners === false;
+            addSubmitListeners = typeof window.multilang2_addedListeners === 'undefined'
+                || window.multilang2_addedListeners === undefined
+                || !window.multilang2_addedListeners;
 
             if (this._highlight) {
                 if (addSubmitListeners) {
@@ -284,20 +286,18 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @private
      */
     _cleanTagsOnSubmit: function(e) {
-        var submitbutton = Y.one('#id_submitbutton');
+        var submitbutton;
 
-        if (!this._tagsCleaned) {
-            e.preventDefault();
+        e.preventDefault();
 
-            this._cleanTagsWithNoYuiId();
-            this._cleanTagsWithYuiId();
+        submitbutton = document.getElementById('id_submitbutton');
 
-            this._tagsCleaned = true;
-        }
+        this._cleanTagsWithNoYuiId();
+        this._cleanTagsWithYuiId();
 
-        this.detach();
+        window.onbeforeunload = null;
 
-        submitbutton.simulate('click');
+        submitbutton.form.submit();
     },
 
     /**
@@ -311,20 +311,18 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @private
      */
     _cleanTagsOnSubmitSecondButton: function(e) {
-        var submitbutton = Y.one('#id_submitbutton2');
+        var submitbutton;
 
-        if (!this._tagsCleaned) {
-            e.preventDefault();
+        e.preventDefault();
 
-            this._cleanTagsWithNoYuiId();
-            this._cleanTagsWithYuiId();
+        submitbutton = document.getElementById('id_submitbutton2');
 
-            this._tagsCleaned = true;
-        }
+        this._cleanTagsWithNoYuiId();
+        this._cleanTagsWithYuiId();
 
-        this.detach();
+        window.onbeforeunload = null;
 
-        submitbutton.simulate('click');
+        submitbutton.form.submit();
     },
 
     /**
