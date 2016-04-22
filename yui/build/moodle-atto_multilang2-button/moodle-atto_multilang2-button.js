@@ -49,9 +49,7 @@ var CLASSES = {
 
         NOT_SPANED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
     },
-    OPENING_SPAN = '<span class="' + CLASSES.TAG + '">',
-
-    ADDED_SUBMITS = false;
+    OPENING_SPAN = '<span class="' + CLASSES.TAG + '">';
 
 /**
  * Atto text editor multilanguage plugin.
@@ -84,7 +82,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
-            toolbarItems = [];
+            toolbarItems = [],
+            addSubmitListeners;
 
         if (hascapability) {
             toolbarItems = this._initializeToolbarItems();
@@ -103,9 +102,11 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this._addDelimiterCss();
 
+            addSubmitListeners = (typeof window.multilang2_addedListeners === 'undefined') || window.multilang2_addedListeners === false;
+
             if (this._highlight) {
-                if (!ADDED_SUBMITS) {
-                    ADDED_SUBMITS = true;
+                if (addSubmitListeners) {
+                    window.multilang2_addedListeners = true;
                     this._decorateTagsOnInit();
                     this._setSubmitListeners();
                 }
