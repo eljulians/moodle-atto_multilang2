@@ -258,14 +258,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
     /**
      * When submit button clicked, this function is invoked. It has to stop the submission,
-     * preventing default action, in order to process the textarea to clean the tags.
+     * in order to process the textarea to clean the tags.
      *
-     * For submitting the form after the tag cleanup, native JavaScript is used. No human way
-     * has been found to do this with YUI.
-     *
-     * After the submission, the 'onbeforeunload' event (that popup prompted when trying to
-     * leave the page having unsaved changes) has to be set to null, beacuse submitting the
-     * form by this way, triggers that event.
+     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
+     * an then simulates the click, to submit the form.
      *
      * @method _cleanTagsOnSubmit
      * @param {EventFacade} e
@@ -276,26 +272,28 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         e.preventDefault();
 
-        submitbutton = document.getElementById('id_submitbutton');
+        submitbutton = Y.one('#id_submitbutton');
 
-        this._cleanTagsWithNoYuiId();
-        this._cleanTagsWithYuiId();
+        if (!window.tagsCleaned) {
+            this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
 
-        window.onbeforeunload = null;
+            window.tagsCleaned = true;
 
-        submitbutton.form.submit();
+            submitbutton.detach('click', this._cleanTagsOnSubmit);
+            submitbutton.simulate('click');
+        }
     },
 
     /**
      * When submit button clicked, this function is invoked. It has to stop the submission,
-     * preventing default action, in order to process the textarea to clean the tags.
+     * in order to process the textarea to clean the tags.
      *
-     * For submitting the form after the tag cleanup, native JavaScript is used. No human way
-     * has been found to do this with YUI.
+     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
+     * an then simulates the click, to submit the form.
      *
-     * After the submission, the 'onbeforeunload' event (that popup prompted when trying to
-     * leave the page having unsaved changes) has to be set to null, beacuse submitting the
-     * form by this way, triggers that event.
+     * The cleanup with "id" attribute and without it is made separately, to avoid an evil
+     * regular expression.
      *
      * @method _cleanTagsOnSubmit
      * @param {EventFacade} e
@@ -306,14 +304,17 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         e.preventDefault();
 
-        submitbutton = document.getElementById('id_submitbutton2');
+        submitbutton = Y.one('#id_submitbutton2');
 
-        this._cleanTagsWithNoYuiId();
-        this._cleanTagsWithYuiId();
+        if (!window.tagsCleaned) {
+            this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
 
-        window.onbeforeunload = null;
+            window.tagsCleaned = true;
 
-        submitbutton.form.submit();
+            submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
+            submitbutton.simulate('click');
+        }
     },
 
     /**
