@@ -68,20 +68,9 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _highlight: true,
 
-    /**
-     * If the {mlang} tags have been cleaned on submit, to check if they have to be cleaned,
-     * or if the form has to be submitted.
-     *
-     * @property _tagsCleaned
-     * @type boolean
-     * @private
-     */
-    _tagsCleaned: false,
-
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
-            toolbarItems = [],
-            addSubmitListeners;
+            toolbarItems = [];
 
         if (hascapability) {
             toolbarItems = this._initializeToolbarItems();
@@ -100,16 +89,9 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this._addDelimiterCss();
 
-            addSubmitListeners = typeof window.multilang2_addedListeners === 'undefined'
-                || window.multilang2_addedListeners === undefined
-                || !window.multilang2_addedListeners;
-
             if (this._highlight) {
-                if (addSubmitListeners) {
-                    window.multilang2_addedListeners = true;
-                    this._decorateTagsOnInit();
-                    this._setSubmitListeners();
-                }
+                this._decorateTagsOnInit();
+                this._setSubmitListeners();
             }
         }
     },
@@ -227,6 +209,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         return html;
     },
+
     /**
      * Listens to every change of the text cursor in the text area. If the
      * cursor is placed within a multilang tag, the whole tag is selected.
@@ -273,11 +256,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
     /**
      * When submit button clicked, this function is invoked. It has to stop the submission,
-     * in order to process the textarea to clean the tags.
-     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
-     * an then simulates the click, to submit the form.
-     * The cleanup with "id" attribute and without it is made separately, to avoid an evil
-     * regular expression.
+     * preventing default action, in order to process the textarea to clean the tags.
+     *
+     * For submitting the form after the tag cleanup, native JavaScript is used. No human way
+     * has been found to do this with YUI.
+     *
+     * After the submission, the 'onbeforeunload' event (that popup prompted when trying to
+     * leave the page having unsaved changes) has to be set to null, beacuse submitting the
+     * form by this way, triggers that event.
      *
      * @method _cleanTagsOnSubmit
      * @param {EventFacade} e
@@ -299,12 +285,17 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     },
 
     /**
-     * The page may have more than one submit buttons, e.g., for saving and displaying, and for
-     * saving and returning to course.
-     * The easiest way to determine which event is the "triggerer", is to assign a different listener
-     * to each one, and this is the one for the second button that the page could have.
+     * When submit button clicked, this function is invoked. It has to stop the submission,
+     * preventing default action, in order to process the textarea to clean the tags.
      *
-     * @method _cleanTagsOnSubmitSecondButton
+     * For submitting the form after the tag cleanup, native JavaScript is used. No human way
+     * has been found to do this with YUI.
+     *
+     * After the submission, the 'onbeforeunload' event (that popup prompted when trying to
+     * leave the page having unsaved changes) has to be set to null, beacuse submitting the
+     * form by this way, triggers that event.
+     *
+     * @method _cleanTagsOnSubmit
      * @param {EventFacade} e
      * @private
      */
