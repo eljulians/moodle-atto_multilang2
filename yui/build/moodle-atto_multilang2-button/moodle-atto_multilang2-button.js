@@ -274,7 +274,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         submitbutton = Y.one('#id_submitbutton');
 
-        if (!window.tagsCleaned) {
+        //if (!window.tagsCleaned) {
             this._cleanTagsWithNoYuiId();
             this._cleanTagsWithYuiId();
 
@@ -282,7 +282,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             submitbutton.detach('click', this._cleanTagsOnSubmit);
             submitbutton.simulate('click');
-        }
+        //}
     },
 
     /**
@@ -306,7 +306,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         submitbutton = Y.one('#id_submitbutton2');
 
-        if (!window.tagsCleaned) {
+        //if (!window.tagsCleaned) {
             this._cleanTagsWithNoYuiId();
             this._cleanTagsWithYuiId();
 
@@ -314,7 +314,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
             submitbutton.simulate('click');
-        }
+        //}
     },
 
     /**
