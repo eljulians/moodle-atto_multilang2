@@ -70,16 +70,6 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _highlight: true,
 
-    /**
-     * If the {mlang} tags have been cleaned on submit, to check if they have to be cleaned,
-     * or if the form has to be submitted.
-     *
-     * @property _tagsCleaned
-     * @type boolean
-     * @private
-     */
-    _tagsCleaned: false,
-
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
             toolbarItems = [];
@@ -99,8 +89,9 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
             this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
 
+            this._addDelimiterCss();
+
             if (this._highlight) {
-                this._addDelimiterCss();
                 this._decorateTagsOnInit();
                 this._setSubmitListeners();
             }
@@ -220,6 +211,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         return html;
     },
+
     /**
      * Listens to every change of the text cursor in the text area. If the
      * cursor is placed within a multilang tag, the whole tag is selected.
@@ -267,8 +259,39 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     /**
      * When submit button clicked, this function is invoked. It has to stop the submission,
      * in order to process the textarea to clean the tags.
+     *
      * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
      * an then simulates the click, to submit the form.
+     *
+     * @method _cleanTagsOnSubmit
+     * @param {EventFacade} e
+     * @private
+     */
+    _cleanTagsOnSubmit: function(e) {
+        var submitbutton;
+
+        e.preventDefault();
+
+        submitbutton = Y.one('#id_submitbutton');
+
+        //if (!window.tagsCleaned) {
+            this._cleanTagsWithNoYuiId();
+            this._cleanTagsWithYuiId();
+
+            window.tagsCleaned = true;
+
+            submitbutton.detach('click', this._cleanTagsOnSubmit);
+            submitbutton.simulate('click');
+        //}
+    },
+
+    /**
+     * When submit button clicked, this function is invoked. It has to stop the submission,
+     * in order to process the textarea to clean the tags.
+     *
+     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
+     * an then simulates the click, to submit the form.
+     *
      * The cleanup with "id" attribute and without it is made separately, to avoid an evil
      * regular expression.
      *
@@ -276,48 +299,22 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @param {EventFacade} e
      * @private
      */
-    _cleanTagsOnSubmit: function(e) {
-        var submitbutton = Y.one('#id_submitbutton');
-
-        if (!this._tagsCleaned) {
-            e.preventDefault();
-
-            this._cleanTagsWithNoYuiId();
-            this._cleanTagsWithYuiId();
-
-            this._tagsCleaned = true;
-        }
-
-        this.detach();
-
-        submitbutton.simulate('click');
-    },
-
-    /**
-     * The page may have more than one submit buttons, e.g., for saving and displaying, and for
-     * saving and returning to course.
-     * The easiest way to determine which event is the "triggerer", is to assign a different listener
-     * to each one, and this is the one for the second button that the page could have.
-     *
-     * @method _cleanTagsOnSubmitSecondButton
-     * @param {EventFacade} e
-     * @private
-     */
     _cleanTagsOnSubmitSecondButton: function(e) {
-        var submitbutton = Y.one('#id_submitbutton2');
+        var submitbutton;
 
-        if (!this._tagsCleaned) {
-            e.preventDefault();
+        e.preventDefault();
 
+        submitbutton = Y.one('#id_submitbutton2');
+
+        //if (!window.tagsCleaned) {
             this._cleanTagsWithNoYuiId();
             this._cleanTagsWithYuiId();
 
-            this._tagsCleaned = true;
-        }
+            window.tagsCleaned = true;
 
-        this.detach();
-
-        submitbutton.simulate('click');
+            submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
+            submitbutton.simulate('click');
+        //}
     },
 
     /**
