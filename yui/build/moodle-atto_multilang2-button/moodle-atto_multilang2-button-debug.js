@@ -274,15 +274,12 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         submitbutton = Y.one('#id_submitbutton');
 
-        //if (!window.tagsCleaned) {
-            this._cleanTagsWithNoYuiId();
-            this._cleanTagsWithYuiId();
+        this._cleanTagsWithNoYuiId();
+        this._cleanTagsWithYuiId();
 
-            window.tagsCleaned = true;
 
-            submitbutton.detach('click', this._cleanTagsOnSubmit);
-            submitbutton.simulate('click');
-        //}
+        submitbutton.detach('click', this._cleanTagsOnSubmit);
+        submitbutton.simulate('click');
     },
 
     /**
@@ -306,15 +303,11 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         submitbutton = Y.one('#id_submitbutton2');
 
-        //if (!window.tagsCleaned) {
-            this._cleanTagsWithNoYuiId();
-            this._cleanTagsWithYuiId();
+        this._cleanTagsWithNoYuiId();
+        this._cleanTagsWithYuiId();
 
-            window.tagsCleaned = true;
-
-            submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
-            submitbutton.simulate('click');
-        //}
+        submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
+        submitbutton.simulate('click');
     },
 
     /**
@@ -328,6 +321,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * reference, but, if there are more, we will have an array. So, the easiest way is to
      * check if what we have is an array, and if it not, create it manually, and iterate it
      * later.
+     *
+     * issue #15: the textareas are now retrieved passing to YUI selector the whole element,
+     * instead of the id string, due to problems with special characters.
+     * See discussion: https://moodle.org/mod/forum/discuss.php?d=332217
      *
      * @method _cleanTagsWithNoYuiId
      * @private
@@ -353,7 +350,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
         for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
             textarea = textareas._nodes[textareaIndex].id;
-            textarea = Y.one('#' + textarea);
+            textarea = Y.one(document.getElementById(textarea));
 
             innerHTML = textarea.get('innerHTML');
 
@@ -390,6 +387,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * check if what we have is an array, and if it not, create it manually, and iterate it
      * later.
      *
+     * issue #15: the textareas are now retrieved passing to YUI selector the whole element,
+     * instead of the id string, due to problems with special characters.
+     * See discussion: https://moodle.org/mod/forum/discuss.php?d=332217
+     *
      * @method anTagsWithYuiId
      * @private
      */
@@ -417,7 +418,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         
         for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
             textarea = textareas._nodes[textareaIndex].id;
-            textarea = Y.one('#' + textarea);
+            textarea = Y.one(document.getElementById(textarea));
 
             innerHTML = textarea.get('innerHTML');
 
