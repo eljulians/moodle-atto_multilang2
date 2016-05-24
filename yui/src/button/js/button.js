@@ -68,6 +68,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _highlight: true,
 
+    _auxiliarSubmitButtonNode: null,
+
     initializer: function() {
         var hascapability = this.get(ATTR_CAPABILITY),
             toolbarItems = [];
@@ -244,68 +246,46 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @private
      */
     _setSubmitListeners: function() {
-        var submitbutton = Y.one('#id_submitbutton'),
-            submitbutton2 = Y.one('#id_submitbutton2');
+        var submitButtons = Y.all('input[type=submit]');
 
-        submitbutton.on('click', this._cleanTagsOnSubmit, this);
+        submitButtons.each(this._addListenerToSubmitButtons, this);
+    },
 
-        if (submitbutton2 !== null) {
-            submitbutton2.on('click', this._cleanTagsOnSubmitSecondButton, this);
+    _addListenerToSubmitButtons: function(buttonNode) {
+        var buttonObject,
+            className,
+            parentFormClassName,
+            notCancelButton,
+            notSearchButton;
+
+        buttonObject = document.getElementById(buttonNode.get('id'));
+
+        if (buttonObject !== null) {
+            className = buttonObject.className;
+            parentFormClassName = buttonObject.form.className;
+
+            notCancelButton = className.match(/btn-cancel/g) === null;
+            notSearchButton = parentFormClassName.match(/mform/g).length > 0;
+
+            if (notCancelButton && notSearchButton) {
+                this._auxiliarSubmitButtonNode = buttonNode;
+                buttonNode.on('click', this._cleanTagsOnSubmit, this);
+            }
         }
     },
 
-    /**
-     * When submit button clicked, this function is invoked. It has to stop the submission,
-     * in order to process the textarea to clean the tags.
-     *
-     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
-     * an then simulates the click, to submit the form.
-     *
-     * @method _cleanTagsOnSubmit
-     * @param {EventFacade} e
-     * @private
-     */
     _cleanTagsOnSubmit: function(e) {
-        var submitbutton;
+        var submitButton;
 
         e.preventDefault();
 
-        submitbutton = Y.one('#id_submitbutton');
+        submitButton = Y.one(this._auxiliarSubmitButtonNode);
 
         this._cleanTagsWithNoYuiId();
         this._cleanTagsWithYuiId();
 
-
-        submitbutton.detach('click', this._cleanTagsOnSubmit);
-        submitbutton.simulate('click');
-    },
-
-    /**
-     * When submit button clicked, this function is invoked. It has to stop the submission,
-     * in order to process the textarea to clean the tags.
-     *
-     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
-     * an then simulates the click, to submit the form.
-     *
-     * The cleanup with "id" attribute and without it is made separately, to avoid an evil
-     * regular expression.
-     *
-     * @method _cleanTagsOnSubmit
-     * @param {EventFacade} e
-     * @private
-     */
-    _cleanTagsOnSubmitSecondButton: function(e) {
-        var submitbutton;
-
-        e.preventDefault();
-
-        submitbutton = Y.one('#id_submitbutton2');
-
-        this._cleanTagsWithNoYuiId();
-        this._cleanTagsWithYuiId();
-
-        submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
-        submitbutton.simulate('click');
+        submitButton.detach('click', this._cleanTagsOnSubmit);
+        submitButton.simulate('click');
     },
 
     /**
