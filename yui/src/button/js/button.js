@@ -68,6 +68,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _highlight: true,
 
+    /**
+     * Used as "indirect argument" to function "_cleanTagsOnSubmit", since there is not
+     * any (apparent) way to pass arguments to YUI callback functions.
+     *
+     * @property _auxiliarSubmitButton
+     * @type Node
+     * @private
+     */
     _auxiliarSubmitButtonNode: null,
 
     initializer: function() {
@@ -235,14 +243,11 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     },
 
     /**
-     * Sets the submit listener to the function that finds the spaned {mlang} tags.
+     * Retrieves the inputs of type submit, and, for each element, calls the function
+     * that sets the submit listener. Is not made in this function because there is
+     * not any (apparent) way to access class scope from YUI closure. 
      *
-     * In some forms, there may be two different submit buttons, so we add the listener
-     * to the second, if this exists.
-     *
-     * These submit listeners are set only if the "highlight" plugin setting is checked.
-     *
-     * @method _setSubmitListener
+     * @method _setSubmitListeners
      * @private
      */
     _setSubmitListeners: function() {
@@ -251,6 +256,18 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         submitButtons.each(this._addListenerToSubmitButtons, this);
     },
 
+    /**
+     * Adds the clean tags submit listener of each input[type="submit"], but only if
+     * it's not 'cancel' type, and if its parent form is of 'mform' class, because there
+     * may be any other submit type (such us administrator's search button).
+     *
+     * The button node to add the listener is passed as global property because there is
+     * no (apparent) way to pass arguments to YUI callback functions.
+     *
+     * @method _addListenerToSubmitButtons
+     * @param {Node} buttonNode
+     * @private
+     */
     _addListenerToSubmitButtons: function(buttonNode) {
         var buttonObject,
             className,
@@ -274,6 +291,20 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         }
     },
 
+     /**
+     * When submit button clicked, this function is invoked. It has to stop the submission,
+     * in order to process the textarea to clean the tags.
+     *
+     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
+     * an then simulates the click, to submit the form.
+     *
+     * The clicked submit button ('save and return' or 'save and display'), is accessed globally,
+     * in '_auxiliarSubmitButtonNode' property, set by '_addListenerToSubmitButtons' function.
+     *
+     * @method _cleanTagsOnSubmit
+     * @param {EventFacade} e
+     * @private
+     */
     _cleanTagsOnSubmit: function(e) {
         var submitButton;
 
