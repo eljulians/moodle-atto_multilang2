@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Atto Multilingual content plugin version details.
  *
@@ -20,10 +21,11 @@
  * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version      = 2016042800;         // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release      = 'master - Release v1.5 (Build 2016042800) for Moodle v2.9 and v3.0';
+$plugin->version      = 2016052600;         // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release      = 'master - Release v1.6 (Build 2016052600) for Moodle 2.9, 3.0 and 3.1';
 $plugin->requires     = 2015051100;         // Required Moodle version.
 $plugin->component    = 'atto_multilang2'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity     = MATURITY_STABLE;
