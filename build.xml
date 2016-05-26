@@ -70,15 +70,17 @@
         <copy file="${config.path}" tofile="${behat.wwwroot}/config.php"/>
     </target>
 
-    <target name="selenium_kill">
+    <!-- This kills both Selenium and xvfb are killed. The "killall" command is a dirty workaround to issue #11, but no other way has been found to make the tests work properly. -->
+    <target name="selenium_kill" depends="behat_init">
+        <exec command="killall -v xvfb-run"/>
         <exec command="curl -s http://localhost:4444/selenium-server/driver/?cmd=shutDownSeleniumServer"/>
     </target>
 
     <target name="selenium_start" depends="selenium_kill">
-        <exec command="java -jar /var/lib/jenkins/selenium/selenium-server-standalone-2.48.2.jar &gt; /dev/null &amp;" outputProperty="selenium.output"/>
+        <exec command="xvfb-run -a java -jar ${selenium.path} &gt; /dev/null &amp;" outputProperty="selenium.output"/>
     </target>
 
-    <target name="behat_test" depends="behat_init, selenium_start">
+    <target name="behat_test" depends="selenium_start">
         <exec command="vendor/bin/behat --config ${behat.yml} --tags @atto_multilang2" dir="${version.dir}" returnProperty="behat.status" outputProperty="behat.output"/>
         <if>
             <equals arg1="${behat.status}" arg2="${error.code}"/>

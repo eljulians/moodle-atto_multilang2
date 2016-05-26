@@ -154,11 +154,11 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * it's impossible to place the cursor inside the {mlang} tags.
      *
      * @method _addTags
-     * @param {EventFacade} e
+     * @param {EventFacade} event
      * @param {string} langCode the language code
      * @private
      */
-    _addTags: function(e, langCode) {
+    _addTags: function(event, langCode) {
         var selection,
             host = this.get('host'),
             taggedContent,
@@ -235,28 +235,51 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     },
 
     /**
-     * Sets the submit listener to the function that finds the spaned {mlang} tags.
+     * Retrieves the inputs of type submit, and, for each element, calls the function
+     * that sets the submit listener. Is not made in this function because there is
+     * not any (apparent) way to access class scope from YUI closure.
      *
-     * In some forms, there may be two different submit buttons, so we add the listener
-     * to the second, if this exists.
-     *
-     * These submit listeners are set only if the "highlight" plugin setting is checked.
-     *
-     * @method _setSubmitListener
+     * @method _setSubmitListeners
      * @private
      */
     _setSubmitListeners: function() {
-        var submitbutton = Y.one('#id_submitbutton'),
-            submitbutton2 = Y.one('#id_submitbutton2');
+        var submitButtons = Y.all('input[type=submit]');
 
-        submitbutton.on('click', this._cleanTagsOnSubmit, this);
+        submitButtons.each(this._addListenerToSubmitButtons, this);
+    },
 
-        if (submitbutton2 !== null) {
-            submitbutton2.on('click', this._cleanTagsOnSubmitSecondButton, this);
+    /**
+     * Adds the clean tags submit listener of each input[type="submit"], but only if
+     * it's not 'cancel' type, and if its parent form is of 'mform' class, because there
+     * may be any other submit type (such us administrator's search button).
+     *
+     * @method _addListenerToSubmitButtons
+     * @param {Node} buttonNode
+     * @private
+     */
+    _addListenerToSubmitButtons: function(buttonNode) {
+        var buttonObject,
+            className,
+            parentFormClassName,
+            notCancelButton,
+            notSearchButton;
+
+        buttonObject = document.getElementById(buttonNode.get('id'));
+
+        if (buttonObject !== null) {
+            className = buttonObject.className;
+            parentFormClassName = buttonObject.form.className;
+
+            notCancelButton = className.match(/btn-cancel/g) === null;
+            notSearchButton = parentFormClassName.match(/mform/g).length > 0;
+
+            if (notCancelButton && notSearchButton) {
+                buttonNode.on('click', this._cleanTagsOnSubmit, this, buttonNode);
+            }
         }
     },
 
-    /**
+     /**
      * When submit button clicked, this function is invoked. It has to stop the submission,
      * in order to process the textarea to clean the tags.
      *
@@ -264,50 +287,18 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * an then simulates the click, to submit the form.
      *
      * @method _cleanTagsOnSubmit
-     * @param {EventFacade} e
+     * @param {EventFacade} event
+     * @param {Node} submitButton
      * @private
      */
-    _cleanTagsOnSubmit: function(e) {
-        var submitbutton;
-
-        e.preventDefault();
-
-        submitbutton = Y.one('#id_submitbutton');
+    _cleanTagsOnSubmit: function(event, submitButton) {
+        event.preventDefault();
 
         this._cleanTagsWithNoYuiId();
         this._cleanTagsWithYuiId();
 
-
-        submitbutton.detach('click', this._cleanTagsOnSubmit);
-        submitbutton.simulate('click');
-    },
-
-    /**
-     * When submit button clicked, this function is invoked. It has to stop the submission,
-     * in order to process the textarea to clean the tags.
-     *
-     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
-     * an then simulates the click, to submit the form.
-     *
-     * The cleanup with "id" attribute and without it is made separately, to avoid an evil
-     * regular expression.
-     *
-     * @method _cleanTagsOnSubmit
-     * @param {EventFacade} e
-     * @private
-     */
-    _cleanTagsOnSubmitSecondButton: function(e) {
-        var submitbutton;
-
-        e.preventDefault();
-
-        submitbutton = Y.one('#id_submitbutton2');
-
-        this._cleanTagsWithNoYuiId();
-        this._cleanTagsWithYuiId();
-
-        submitbutton.detach('click', this._cleanTagsOnSubmitSecondButton);
-        submitbutton.simulate('click');
+        submitButton.detach('click', this._cleanTagsOnSubmit);
+        submitButton.simulate('click');
     },
 
     /**
