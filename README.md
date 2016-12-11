@@ -8,7 +8,7 @@ This plugin will make the creation of multilingual contents on Moodle much more 
 The plugin is developed to work with [Iñaki Arenaza's multilang2 filter](https://github.com/iarenaza/moodle-filter_multilang2), and the idea is based on [his plugin for TinyMCE editor](https://github.com/iarenaza/moodle-tinymce_moodlelang2).
 
 ## Current version
-The latest release is the v1.6 (build 2016042800) for Moodle 2.9, 3.0 and 3.1. Checkout [v2.9.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v2.9.1.6), [v3.0.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.0.1.6), and [v3.1.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.1.1.6) releases, respectively.
+The latest release is the v1.6 (build 2016121100) for Moodle 2.9, 3.0, 3.1 and 3.2 (Checkout [v2.9.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v2.9.1.6), [v3.0.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.0.1.6), [v3.1.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.1.1.6) and [v3.2.1.6](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.2.1.6) releases, respectively.
 
 ## Changes from v1.5
  - Fix issue "Filepicker not loading when grading assignment" (see [issue 17](https://github.com/julenpardo/moodle-atto_multilang2/issues/17)).
