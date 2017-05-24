@@ -1,14 +1,14 @@
 Atto multilanguage plugin
 =========================
 
-![Release](https://img.shields.io/badge/release-v1.7-blue.svg) ![Supported](https://img.shields.io/badge/supported-2.9%2C%203.0%2C%203.1%2C%203.2-green.svg)
+![Release](https://img.shields.io/badge/release-v1.7-blue.svg) ![Supported](https://img.shields.io/badge/supported-2.9%2C%203.0%2C%203.1%2C%203.2%2C%203.3-green.svg)
 
 This plugin will make the creation of multilingual contents on Moodle much more easier with Atto editor.
 
 The plugin is developed to work with [Iñaki Arenaza's multilang2 filter](https://github.com/iarenaza/moodle-filter_multilang2), and the idea is based on [his plugin for TinyMCE editor](https://github.com/iarenaza/moodle-tinymce_moodlelang2).
 
 ## Current version
-The latest release is the v1.7 (build 2016121100) for Moodle 2.9, 3.0, 3.1 and 3.2 (Checkout [v2.9.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v2.9.1.6), [v3.0.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.0.1.6), [v3.1.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.1.1.6) and [v3.2.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.2.1.6) releases, respectively.
+The latest release is the v1.7 (build 2016121100) for Moodle 2.9, 3.0, 3.1, 3.2 and 3.3 (Checkout [v2.9.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v2.9.1.6), [v3.0.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.0.1.6), [v3.1.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.1.1.6), [v3.2.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.2.1.6) and [v3.3.1.7](https://github.com/julenpardo/moodle-atto_multilang2/releases/tag/v3.3.1.7) releases, respectively.
 
 ## Changes from v1.6
  - Add missing capability string
