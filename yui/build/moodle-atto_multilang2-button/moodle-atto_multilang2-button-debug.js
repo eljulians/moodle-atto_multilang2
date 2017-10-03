@@ -18,6 +18,7 @@ YUI.add('moodle-atto_multilang2-button', function (Y, NAME) {
 /**
  * @package    atto_multilang2
  * @copyright  2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright  2017 onwards Iñaki Arenaza & Mondragon Unibertsitatea
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -42,14 +43,14 @@ var CLASSES = {
                    'padding: 0.1em;' +
                    'margin: 0em 0.1em;' +
                    'background-color: #ffffaa;',
-    TEMPLATES = {
-        SPANED: '&nbsp;<span class="' + CLASSES.TAG + '">{mlang ' + LANG_WILDCARD + '}</span>' +
-            CONTENT_WILDCARD +
-            '<span class="' + CLASSES.TAG + '">{mlang}</span>&nbsp;',
-
-        NOT_SPANED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
-    },
     OPENING_SPAN = '<span class="' + CLASSES.TAG + '">';
+    CLOSING_SPAN = '</span>';
+    TEMPLATES = {
+        SPANNED: '&nbsp;' + OPENING_SPAN + '{mlang ' + LANG_WILDCARD + '}' + CLOSING_SPAN +
+                 CONTENT_WILDCARD + OPENING_SPAN + '{mlang}' + CLOSING_SPAN + '&nbsp;',
+
+        NOT_SPANNED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
+    },
 
 /**
  * Atto text editor multilanguage plugin.
@@ -71,12 +72,10 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _highlight: true,
 
     initializer: function() {
-        var hascapability = this.get(ATTR_CAPABILITY),
-            toolbarItems = [];
+        var hascapability = this.get(ATTR_CAPABILITY);
 
         if (hascapability) {
-            toolbarItems = this._initializeToolbarItems();
-            this._highlight = this.get(ATTR_HIGHLIGHT);
+            var toolbarItems = this._initializeToolbarItems();
 
             this.addToolbarMenu({
                 globalItemConfig: {
@@ -87,32 +86,34 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
                 items: toolbarItems
             });
 
-            this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
+            this._tagTemplate = TEMPLATES.NOT_SPANNED;
 
-            this._addDelimiterCss();
-
+            this._highlight = this.get(ATTR_HIGHLIGHT);
             if (this._highlight) {
-                this._decorateTagsOnInit();
-                this._setSubmitListeners();
+                this._tagTemplate = TEMPLATES.SPANNED;
+
+                // Attach a submit listener to the form, so we can remove
+                // the highlighting html before sending content to Moodle.
+                var host = this.get('host');
+                var form = host.textarea.ancestor('form');
+                if (form) {
+                    form.on('submit', this._cleanMlangTags, this);
+                }
+
+                // Listen to every change of the text cursor in the text area, to see if
+                // the cursor is placed within a multilang tag.
+                this.get('host').on('atto:selectionchanged', this._checkSelectionChange, this);
+
+                // Highlight the multilang tags once everything is loaded.
+                this.get('host').on('pluginsloaded', this._addHighlightingCss, this);
+                this.get('host').on('pluginsloaded', this._highlightMlangTags, this);
+
+                // Hook into host.updateOriginal() and host.updateFromTextArea()
+                // so we can add/remove highlighting when we switch to/from HTML view.
+                this._hookUpdateOriginal();
+                this._hookUpdateFromTextArea();
             }
         }
-    },
-
-    /**
-     * Adds the CSS rules for the delimiters, received as parameter from lib.php.
-     *
-     * @method _addDelimiterCss
-     * @private
-     */
-    _addDelimiterCss: function() {
-        var css = '.' + CLASSES.TAG + '{' + this.get(ATTR_CSS) + '}',
-            style;
-
-        style = document.createElement('style');
-        style.type = 'text/css';
-        style.innerHTML = css;
-
-        document.head.appendChild(style);
     },
 
     /**
@@ -129,7 +130,6 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             langCode;
 
         languages = JSON.parse(this.get(ATTR_LANGUAGES));
-
         for (langCode in languages) {
             if (languages.hasOwnProperty(langCode)) {
                 toolbarItems.push({
@@ -140,6 +140,76 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         }
 
         return toolbarItems;
+    },
+
+    /**
+     * Adds the CSS rules for the delimiters, received as parameter from lib.php.
+     *
+     * @method _addHighlightingCss
+     * @private
+     */
+    _addHighlightingCss: function() {
+        var css = '.' + CLASSES.TAG + ' {' + this.get(ATTR_CSS) + '}',
+            style;
+
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+
+        document.head.appendChild(style);
+    },
+
+    /**
+     * Hook the host.updateOriginal() method to allow us to remove the highlighting html when
+     * switching to HTML view. As the HTML view plugin doesn't provide a hook or fire an event
+     * to notify about the switch to HTML view, we need to hijack host.updateOriginal and look
+     * for the caller. Once we've cleaned up the highlighting, we need to execute the original
+     * host.updateOriginal() method.
+     * Inspired by https://stackoverflow.com/a/16580937
+     *
+     * @method _hookUpdateOriginal
+     * @private
+     */
+    _hookUpdateOriginal: function() {
+        var host = this.get('host'),
+            multilangplugin = this; // Capture the plugin in the closure below, so we can invoke _removeTags()
+
+        host.updateOriginal = (function() {
+            var _updateOriginal = host.updateOriginal;
+            return function() {
+                if (multilangplugin._highlight && (this.updateOriginal.caller.name === "_showHTML")) {
+                    multilangplugin.editor.setHTML(multilangplugin._getHTMLwithCleanedTags(multilangplugin.editor.getHTML()));
+                }
+                return _updateOriginal.apply(this, arguments);
+            }
+        })();
+    },
+
+    /**
+     * Hook the host.updateFromTextAreal() method to allow us to re-add the highlighting
+     * html when switching from HTML view. As the HTML view plugin doesn't provide a hook
+     * or fire an event to notify about the switch from HTML view, we need to hijack
+     * host.updateFromTextArea and look for the caller. Once we've executed the original
+     * host.updateFromTextArea() method, we re-added the highlighting.
+     * Inspired by https://stackoverflow.com/a/16580937
+     *
+     * @method _hookUpdateFromTextArea
+     * @private
+     */
+    _hookUpdateFromTextArea: function() {
+        var host = this.get('host'),
+            multilangplugin = this; // Capture the plugin in the closure below, so we can invoke _highlightMlangTags()
+
+        host.updateFromTextArea = (function() {
+            var _updateFromTextArea = host.updateFromTextArea;
+            return function() {
+                var ret = _updateFromTextArea.apply(this, arguments);
+                if (multilangplugin._highlight && (this.updateFromTextArea.caller.name === "_showHTML")) {
+                    multilangplugin._highlightMlangTags();
+                }
+                return ret;
+            }
+        })();
     },
 
     /**
@@ -164,7 +234,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             taggedContent,
             content;
 
-        taggedContent = (this._highlight) ? TEMPLATES.SPANED : TEMPLATES.NOT_SPANED;
+        taggedContent = this._tagTemplate;
 
         selection = this._getSelectionHTML();
         content = (host.getSelection().toString().length === 0) ? '&nbsp;' : selection;
@@ -179,7 +249,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
     /**
      * Retrieves selected text with its HTML.
-     * Took from: http://stackoverflow.com/questions/4176923/html-of-selected-text/4177234#4177234
+     * Taken from: http://stackoverflow.com/questions/4176923/html-of-selected-text/4177234#4177234
      *
      * @method _getSelectionHTML
      * @private
@@ -196,8 +266,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             selection = window.getSelection();
 
             if (selection.rangeCount) {
-                container = document.createElement('div');
-                for (index = 0, lenght = selection.rangeCount; index < lenght; ++index) {
+                var container = document.createElement('div');
+                for (index = 0, length = selection.rangeCount; index < length; ++index) {
                     container.appendChild(selection.getRangeAt(index).cloneContents());
                 }
                 html = container.innerHTML;
@@ -214,232 +284,44 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
     /**
      * Listens to every change of the text cursor in the text area. If the
-     * cursor is placed within a multilang tag, the whole tag is selected.
+     * cursor is placed within a highlighted multilang tag, the whole tag is selected.
      *
      * @method _checkSelectionChange
+     * @param {EventFacade} e An event object.
      * @private
      */
-    _checkSelectionChange: function() {
+    _checkSelectionChange: function(e) {
         var host = this.get('host'),
-            node = host.getSelectionParentNode(),
-            nodeValue = Y.one(node).get('text'),
-            isTextNode,
-            isLangTag;
+            node = host.getSelectionParentNode();
 
-        isTextNode = Y.one(node).toString().indexOf('#text') > - 1;
-        isLangTag = (nodeValue.match(/\{mlang/g).length === 1);
-
-        if (isTextNode && isLangTag) {
-            host.setSelection(host.getSelectionFromNode(Y.one(node)));
+        // If the event fires without a parent node, ignore the whole thing.
+        if ((typeof node === 'undefined') || (node === null)) {
+            return;
         }
-    },
 
-    /**
-     * Retrieves the inputs of type submit, and, for each element, calls the function
-     * that sets the submit listener. Is not made in this function because there is
-     * not any (apparent) way to access class scope from YUI closure.
-     *
-     * @method _setSubmitListeners
-     * @private
-     */
-    _setSubmitListeners: function() {
-        var submitButtons = Y.all('input[type=submit]');
-
-        submitButtons.each(this._addListenerToSubmitButtons, this);
-    },
-
-    /**
-     * Adds the clean tags submit listener of each input[type="submit"], but only if
-     * it's not 'cancel' type, and if its parent form is of 'mform' class, because there
-     * may be any other submit type (such us administrator's search button).
-     *
-     * @method _addListenerToSubmitButtons
-     * @param {Node} buttonNode
-     * @private
-     */
-    _addListenerToSubmitButtons: function(buttonNode) {
-        var buttonObject,
-            className,
-            parentFormClassName,
-            notCancelButton,
-            notSearchButton;
-
-        buttonObject = document.getElementById(buttonNode.get('id'));
-
-        if (buttonObject !== null) {
-            className = buttonObject.className;
-            parentFormClassName = buttonObject.form.className;
-
-            notCancelButton = className.match(/btn-cancel/g) === null;
-            notSearchButton = parentFormClassName.match(/mform/g).length > 0;
-
-            if (notCancelButton && notSearchButton) {
-                buttonNode.on('click', this._cleanTagsOnSubmit, this, buttonNode);
-            }
+        if ((node.parentElement.nodeName === 'SPAN') &&
+                (node.parentElement.getAttributeNode('class').value.indexOf(CLASSES.TAG) !== -1)) {
+            selection = host.getSelectionFromNode(Y.one(node));
+            host.setSelection(selection);
+            return;
         }
     },
 
      /**
-     * When submit button clicked, this function is invoked. It has to stop the submission,
-     * in order to process the textarea to clean the tags.
+     * When submitting the form, this function is invoked to clean the highlighting html code.
      *
-     * Once the textarea is cleaned, detaches this submit listener, i.e., it sets as default,
-     * an then simulates the click, to submit the form.
-     *
-     * @method _cleanTagsOnSubmit
-     * @param {EventFacade} event
-     * @param {Node} submitButton
+     * @method _cleanMlangTags
      * @private
      */
-    _cleanTagsOnSubmit: function(event, submitButton) {
-        event.preventDefault();
-
-        this._cleanTagsWithNoYuiId();
-        this._cleanTagsWithYuiId();
-
-        submitButton.detach('click', this._cleanTagsOnSubmit);
-        submitButton.simulate('click');
-    },
-
-    /**
-     * Cleans the <span> tags around the {mlang} tags when the form is submitted,
-     * that do not have "id" attribute.
-     * The cleanup with "id" attribute and without it is made separately, to avoid an evil
-     * regular expression.
-     *
-     * There may be more than one atto editor textarea in the page. So, we have to retrieve
-     * the textareas by the class name. If there is only one, the object will be only the
-     * reference, but, if there are more, we will have an array. So, the easiest way is to
-     * check if what we have is an array, and if it not, create it manually, and iterate it
-     * later.
-     *
-     * issue #15: the textareas are now retrieved passing to YUI selector the whole element,
-     * instead of the id string, due to problems with special characters.
-     * See discussion: https://moodle.org/mod/forum/discuss.php?d=332217
-     *
-     * @method _cleanTagsWithNoYuiId
-     * @private
-     */
-    _cleanTagsWithNoYuiId: function() {
-        var textareas = Y.all('.editor_atto_content'),
-            textarea,
-            textareaIndex,
-            innerHTML,
-            spanedmlangtags,
-            spanedmlangtag,
-            index,
-            cleanmlangtag,
-            regularExpression;
-
-        regularExpression = new RegExp(OPENING_SPAN + '.*?' + '</span>', 'g');
-
-        if (!textareas instanceof Array) {
-            textarea = textareas;
-            textareas = [];
-            textareas[0] = textarea;
-        }
-
-        for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
-            textarea = textareas._nodes[textareaIndex].id;
-            textarea = Y.one(document.getElementById(textarea));
-
-            innerHTML = textarea.get('innerHTML');
-
-            spanedmlangtags = innerHTML.match(regularExpression);
-
-            if (spanedmlangtags === null) {
-                continue;
-            }
-            
-            for (index = 0; index < spanedmlangtags.length; index++) {
-                spanedmlangtag = spanedmlangtags[index];
-                cleanmlangtag = spanedmlangtag.replace(OPENING_SPAN, '');
-
-                cleanmlangtag = cleanmlangtag.replace('</span>', '');
-
-                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
-            }
-
-            textarea.set('innerHTML', innerHTML);
-        }
-
-        this.markUpdated();
-    },
-
-    /**
-     * Cleans the <span> tags around the {mlang} tags when the form is submitted,
-     * that have "id" attribute, generated by YUI, when the cursor is placed on the tags.
-     * The cleanup with "id" attribute and without it is made separately, to avoid an evil
-     * regular expression.
-     *
-     * There may be more than one atto editor textarea in the page. So, we have to retrieve
-     * the textareas by the class name. If there is only one, the object will be only the
-     * reference, but, if there are more, we will have an array. So, the easiest way is to
-     * check if what we have is an array, and if it not, create it manually, and iterate it
-     * later.
-     *
-     * issue #15: the textareas are now retrieved passing to YUI selector the whole element,
-     * instead of the id string, due to problems with special characters.
-     * See discussion: https://moodle.org/mod/forum/discuss.php?d=332217
-     *
-     * @method anTagsWithYuiId
-     * @private
-     */
-     _cleanTagsWithYuiId: function() {
-        var textareas = Y.all('.editor_atto_content'),
-            textarea,
-            textareaIndex,
-            innerHTML,
-            spanedmlangtag,
-            index,
-            cleanmlangtag,
-            regularExpression,
-            openingspanwithyui,
-            spanedmlangtagsdwithyui,
-            mlangtag;
-
-        openingspanwithyui = OPENING_SPAN.replace('<span', '<span id="yui_.*?"');
-        regularExpression = new RegExp(openingspanwithyui + '.*?{mlang.*?}</span>', 'g');
-
-        if (!textareas instanceof Array) {
-            textarea = textareas;
-            textareas = [];
-            textareas[0] = textarea;
-        }
-        
-        for (textareaIndex = 0; textareaIndex < textareas._nodes.length; textareaIndex++) {
-            textarea = textareas._nodes[textareaIndex].id;
-            textarea = Y.one(document.getElementById(textarea));
-
-            innerHTML = textarea.get('innerHTML');
-
-            spanedmlangtagsdwithyui = innerHTML.match(regularExpression);
-
-            if (spanedmlangtagsdwithyui === null) {
-                continue;
-            }
-            
-            for (index = 0; index < spanedmlangtagsdwithyui.length; index++) {
-                spanedmlangtag = spanedmlangtagsdwithyui[index];
-                mlangtag = spanedmlangtag.match(/\{mlang.*?\}/g)[0];
-
-                cleanmlangtag = spanedmlangtag.replace(regularExpression, mlangtag);
-                cleanmlangtag = cleanmlangtag.replace('</span>', '');
-
-                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
-            }
-
-            textarea.set('innerHTML', innerHTML);
-
+    _cleanMlangTags: function() {
+        if (this._highlight) {
+            this.editor.setHTML(this._getHTMLwithCleanedTags(this.editor.getHTML()));
             this.markUpdated();
         }
     },
 
     /**
-     * Adds the <span> tags to the {mlang} tags when the editor is loaded.
-     * In this case, we DON'T HAVE TO CALL TO markUpdated(). Why? Honestly,
-     * I don't know. But, if we call it after setting the HTML, the {mlang}
-     * tags flicker with the decoration, and returns to their original state.
+     * Adds the <span> tags to the {mlang} tags if highlighting is enable.
      *
      * Instead of taking the HTML directly from the textarea, we have to
      * retrieve it, first, without the <span> tags that can be stored
@@ -449,84 +331,79 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      *
      * Every different {mlang} tag has to be replaced only once, otherwise,
      * nested <span>s will be created in every repeated replacement. So, we
-     * have to have a track of which replacements have been made.
+     * need to track which replacements have been made.
      *
-     * @method _decorateTagsOnInit
+     * @method _highlightMlangTags
      * @private
      */
-    _decorateTagsOnInit: function() {
-        var textarea = Y.all('.editor_atto_content'),
-            innerHTML,
+    _highlightMlangTags: function() {
+        var editorHTML,
             regularExpression,
             mlangtags,
             mlangtag,
             index,
-            decoratedmlangtag,
+            highlightedmlangtag,
             replacementsmade = [],
             notreplacedyet;
+        if (this._highlight){
+            editorHTML = this._getHTMLwithCleanedTags(this.editor.getHTML());
 
-        innerHTML = this._getHTMLwithCleanedTags();
+            regularExpression = new RegExp('{mlang.*?}', 'g');
+            mlangtags = editorHTML.match(regularExpression);
+            if (mlangtags !== null) {
+                for (index = 0; index < mlangtags.length; index++) {
+                    mlangtag = mlangtags[index];
 
-        regularExpression = new RegExp('{mlang.*?}', 'g');
-        mlangtags = innerHTML.match(regularExpression);
-
-        if (mlangtags !== null) {
-            for (index = 0; index < mlangtags.length; index++) {
-                mlangtag = mlangtags[index];
-
-                notreplacedyet = replacementsmade.indexOf(mlangtag) === -1;
-
-                if (notreplacedyet) {
-                    replacementsmade.push(mlangtag);
-
-                    decoratedmlangtag = OPENING_SPAN + mlangtag + '</span>';
-                    regularExpression = new RegExp(mlangtag, 'g');
-
-                    innerHTML = innerHTML.replace(regularExpression, decoratedmlangtag);
+                    notreplacedyet = replacementsmade.indexOf(mlangtag) === -1;
+                    if (notreplacedyet) {
+                        replacementsmade.push(mlangtag);
+                        highlightedmlangtag = OPENING_SPAN + mlangtag + CLOSING_SPAN;
+                        regularExpression = new RegExp(mlangtag, 'g');
+                        editorHTML = editorHTML.replace(regularExpression, highlightedmlangtag);
+                    }
                 }
+
+                this.editor.setHTML(editorHTML);
             }
 
-            textarea.set('innerHTML', innerHTML);
+            this.markUpdated();
         }
-
     },
 
     /**
-     * This function returns the HTML as it is in the textarea, but cleaning every
+     * This function returns the HTML passed in as parameter, but cleaning every multilang
      * <span> tag around the {mlang} tags. This is necessary for decorating tags on
      * init, because it could happen that in database are stored the {mlang} tags with
      * their <span> tags, due to a bug in version 2015120501.
      * More info about this bug: https://github.com/julenpardo/moodle-atto_multilang2/issues/8
+     * Implementation based on code from EditorClean._clearSpans()
      *
      * @method _getHTMLwithCleanedTags
-     * @return {string} HTML in textarea, without any <span> around {mlang} tags
+     * @param {string} content The to be cleaned.
+     * @return {string} HTML in editor, without any <span> around {mlang} tags.
      */
-    _getHTMLwithCleanedTags: function() {
-        var host = this.get('host'),
-            innerHTML = host.getCleanHTML(),
-            regexString,
-            regularExpression,
-            spanedmlangtags,
-            spanedmlangtag,
-            cleanmlangtag,
-            index;
+    _getHTMLwithCleanedTags: function(content) {
+        // This is better to run detached from the DOM, so the browser doesn't try to update on each change.
+        var holder = document.createElement('div');
+        holder.innerHTML = content;
+        var spans = holder.getElementsByTagName('span');
 
-        regexString = OPENING_SPAN + '.*?' + '</span>';
-        regularExpression = new RegExp(regexString, 'g');
-        spanedmlangtags = innerHTML.match(regularExpression);
+        // Since we will be removing elements from the list, we should copy it to an array, making it static.
+        var spansarr = Array.prototype.slice.call(spans, 0);
 
-        if (spanedmlangtags !== null) {
-            for (index = 0; index < spanedmlangtags.length; index++) {
-                spanedmlangtag = spanedmlangtags[index];
+        spansarr.forEach(function(span) {
+            if (span.className.indexOf(CLASSES.TAG) !== -1) {
+                // Move each child (if they exist) to the parent in place of this span.
+                while (span.firstChild) {
+                    span.parentNode.insertBefore(span.firstChild, span);
+                }
 
-                cleanmlangtag = spanedmlangtag.replace(OPENING_SPAN, '');
-                cleanmlangtag = cleanmlangtag.replace('</span>', '');
-
-                innerHTML = innerHTML.replace(spanedmlangtag, cleanmlangtag);
+                // Remove the now empty span.
+                span.parentNode.removeChild(span);
             }
-        }
+        });
 
-        return innerHTML;
+        return holder.innerHTML;
     }
 
 }, {
