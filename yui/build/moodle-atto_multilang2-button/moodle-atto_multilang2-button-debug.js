@@ -39,18 +39,18 @@ var CLASSES = {
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
     DEFAULT_CAPABILITY = true,
     DEFAULT_HIGHLIGHT = true,
-    DEFAULT_CSS =  'outline: 1px dotted;' +
-                   'padding: 0.1em;' +
-                   'margin: 0em 0.1em;' +
-                   'background-color: #ffffaa;',
-    OPENING_SPAN = '<span class="' + CLASSES.TAG + '">';
-    CLOSING_SPAN = '</span>';
+    DEFAULT_CSS = 'outline: 1px dotted;' +
+                  'padding: 0.1em;' +
+                  'margin: 0em 0.1em;' +
+                  'background-color: #ffffaa;',
+    OPENING_SPAN = '<span class="' + CLASSES.TAG + '">',
+    CLOSING_SPAN = '</span>',
     TEMPLATES = {
         SPANNED: '&nbsp;' + OPENING_SPAN + '{mlang ' + LANG_WILDCARD + '}' + CLOSING_SPAN +
                  CONTENT_WILDCARD + OPENING_SPAN + '{mlang}' + CLOSING_SPAN + '&nbsp;',
 
         NOT_SPANNED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
-    },
+    };
 
 /**
  * Atto text editor multilanguage plugin.
@@ -181,7 +181,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
                     multilangplugin.editor.setHTML(multilangplugin._getHTMLwithCleanedTags(multilangplugin.editor.getHTML()));
                 }
                 return _updateOriginal.apply(this, arguments);
-            }
+            };
         })();
     },
 
@@ -208,7 +208,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
                     multilangplugin._highlightMlangTags();
                 }
                 return ret;
-            }
+            };
         })();
     },
 
@@ -256,17 +256,16 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @return {string} selected text's html; empty if nothing selected
      */
     _getSelectionHTML: function() {
-        var html = '',
-            selection,
-            container,
-            index,
-            lenght;
+        var html = '';
 
         if (typeof window.getSelection !== 'undefined') {
-            selection = window.getSelection();
+            var selection = window.getSelection(),
+                container,
+                index,
+                length;
 
             if (selection.rangeCount) {
-                var container = document.createElement('div');
+                container = document.createElement('div');
                 for (index = 0, length = selection.rangeCount; index < length; ++index) {
                     container.appendChild(selection.getRangeAt(index).cloneContents());
                 }
@@ -345,7 +344,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             highlightedmlangtag,
             replacementsmade = [],
             notreplacedyet;
-        if (this._highlight){
+        if (this._highlight) {
             editorHTML = this._getHTMLwithCleanedTags(this.editor.getHTML());
 
             regularExpression = new RegExp('{mlang.*?}', 'g');
