@@ -70,10 +70,13 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _highlight: true,
 
     initializer: function() {
-        var hascapability = this.get(ATTR_CAPABILITY);
+        var hascapability = this.get(ATTR_CAPABILITY),
+            toolbarItems,
+            host,
+            form;
 
         if (hascapability) {
-            var toolbarItems = this._initializeToolbarItems();
+            toolbarItems = this._initializeToolbarItems();
 
             this.addToolbarMenu({
                 globalItemConfig: {
@@ -92,8 +95,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
 
                 // Attach a submit listener to the form, so we can remove
                 // the highlighting html before sending content to Moodle.
-                var host = this.get('host');
-                var form = host.textarea.ancestor('form');
+                host = this.get('host');
+                form = host.textarea.ancestor('form');
                 if (form) {
                     form.on('submit', this._cleanMlangTags, this);
                 }
@@ -254,13 +257,14 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * @return {string} selected text's html; empty if nothing selected
      */
     _getSelectionHTML: function() {
-        var html = '';
+        var html = '',
+            selection,
+            container,
+            index,
+            length;
 
         if (typeof window.getSelection !== 'undefined') {
-            var selection = window.getSelection(),
-                container,
-                index,
-                length;
+            selection = window.getSelection();
 
             if (selection.rangeCount) {
                 container = document.createElement('div');
@@ -284,12 +288,12 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      * cursor is placed within a highlighted multilang tag, the whole tag is selected.
      *
      * @method _checkSelectionChange
-     * @param {EventFacade} e An event object.
      * @private
      */
-    _checkSelectionChange: function(e) {
+    _checkSelectionChange: function() {
         var host = this.get('host'),
-            node = host.getSelectionParentNode();
+            node = host.getSelectionParentNode(),
+            selection;
 
         // If the event fires without a parent node, ignore the whole thing.
         if ((typeof node === 'undefined') || (node === null)) {
@@ -297,7 +301,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         }
 
         if ((node.parentElement.nodeName === 'SPAN') &&
-                (node.parentElement.getAttributeNode('class').value.indexOf(CLASSES.TAG) !== -1)) {
+                (node.parentElement.getAttribute('class').indexOf(CLASSES.TAG) !== -1)) {
             selection = host.getSelectionFromNode(Y.one(node));
             host.setSelection(selection);
             return;
@@ -381,12 +385,15 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _getHTMLwithCleanedTags: function(content) {
         // This is better to run detached from the DOM, so the browser doesn't try to update on each change.
-        var holder = document.createElement('div');
+        var holder = document.createElement('div'),
+            spans,
+            spansarr;
+
         holder.innerHTML = content;
-        var spans = holder.getElementsByTagName('span');
+        spans = holder.getElementsByTagName('span');
 
         // Since we will be removing elements from the list, we should copy it to an array, making it static.
-        var spansarr = Array.prototype.slice.call(spans, 0);
+        spansarr = Array.prototype.slice.call(spans, 0);
 
         spansarr.forEach(function(span) {
             if (span.className.indexOf(CLASSES.TAG) !== -1) {
