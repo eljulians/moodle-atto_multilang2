@@ -24,6 +24,14 @@
  * @module moodle-atto_multilang2-button
  */
 
+/**
+ * Atto text editor multilanguage plugin.
+ *
+ * @namespace M.atto_multilang2
+ * @class button
+ * @extends M.editor_atto.EditorPlugin.
+ */
+
 var CLASSES = {
         TAG: 'filter-multilang-tag'
     },
@@ -37,7 +45,7 @@ var CLASSES = {
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
     DEFAULT_CAPABILITY = true,
     DEFAULT_HIGHLIGHT = true,
-    DEFAULT_CSS = 'outline: 1px dotted;' +
+    DEFAULT_CSS = 'outline: 1px dotted' +
                   'padding: 0.1em;' +
                   'margin: 0em 0.1em;' +
                   'background-color: #ffffaa;',
@@ -45,18 +53,10 @@ var CLASSES = {
     CLOSING_SPAN = '</span>',
     TEMPLATES = {
         SPANNED: '&nbsp;' + OPENING_SPAN + '{mlang ' + LANG_WILDCARD + '}' + CLOSING_SPAN +
-                 CONTENT_WILDCARD + OPENING_SPAN + '{mlang}' + CLOSING_SPAN + '&nbsp;',
-
+                  CONTENT_WILDCARD + OPENING_SPAN + '{mlang}' + CLOSING_SPAN + '&nbsp;',
         NOT_SPANNED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
     };
 
-/**
- * Atto text editor multilanguage plugin.
- *
- * @namespace M.atto_multilang2
- * @class button
- * @extends M.editor_atto.EditorPlugin
- */
 
 Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_atto.EditorPlugin, [], {
 
@@ -173,7 +173,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _hookUpdateOriginal: function() {
         var host = this.get('host'),
-            multilangplugin = this; // Capture the plugin in the closure below, so we can invoke _removeTags()
+            multilangplugin = this; // Capture the plugin in the closure below, so we can invoke _removeTags().
 
         host.updateOriginal = (function() {
             var _updateOriginal = host.updateOriginal;
@@ -199,7 +199,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
      */
     _hookUpdateFromTextArea: function() {
         var host = this.get('host'),
-            multilangplugin = this; // Capture the plugin in the closure below, so we can invoke _highlightMlangTags()
+            multilangplugin = this; // Capture the plugin in the closure below, so we can invoke _highlightMlangTags().
 
         host.updateFromTextArea = (function() {
             var _updateFromTextArea = host.updateFromTextArea;
