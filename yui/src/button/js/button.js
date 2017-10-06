@@ -45,7 +45,7 @@ var CLASSES = {
     DEFAULT_LANGUAGE = '{"en":"English (en)"}',
     DEFAULT_CAPABILITY = true,
     DEFAULT_HIGHLIGHT = true,
-    DEFAULT_CSS = 'outline: 1px dotted' +
+    DEFAULT_CSS = 'outline: 1px dotted;' +
                   'padding: 0.1em;' +
                   'margin: 0em 0.1em;' +
                   'background-color: #ffffaa;',
@@ -53,7 +53,7 @@ var CLASSES = {
     CLOSING_SPAN = '</span>',
     TEMPLATES = {
         SPANNED: '&nbsp;' + OPENING_SPAN + '{mlang ' + LANG_WILDCARD + '}' + CLOSING_SPAN +
-                  CONTENT_WILDCARD + OPENING_SPAN + '{mlang}' + CLOSING_SPAN + '&nbsp;',
+                 CONTENT_WILDCARD + OPENING_SPAN + '{mlang}' + CLOSING_SPAN + '&nbsp;',
         NOT_SPANNED: '{mlang ' + LANG_WILDCARD + '}' + CONTENT_WILDCARD + '{mlang}'
     };
 
@@ -178,7 +178,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
         host.updateOriginal = (function() {
             var _updateOriginal = host.updateOriginal;
             return function() {
-                if (multilangplugin._highlight && (this.updateOriginal.caller.name === "_showHTML")) {
+                if (multilangplugin._highlight && (this.updateOriginal.caller === host.plugins.html._showHTML)) {
                     multilangplugin.editor.setHTML(multilangplugin._getHTMLwithCleanedTags(multilangplugin.editor.getHTML()));
                 }
                 return _updateOriginal.apply(this, arguments);
@@ -205,7 +205,7 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             var _updateFromTextArea = host.updateFromTextArea;
             return function() {
                 var ret = _updateFromTextArea.apply(this, arguments);
-                if (multilangplugin._highlight && (this.updateFromTextArea.caller.name === "_showHTML")) {
+                if (multilangplugin._highlight && (this.updateFromTextArea.caller === host.plugins.html._showHTML)) {
                     multilangplugin._highlightMlangTags();
                 }
                 return ret;
@@ -295,16 +295,18 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             node = host.getSelectionParentNode(),
             selection;
 
-        // If the event fires without a parent node, ignore the whole thing.
-        if ((typeof node === 'undefined') || (node === null)) {
+        // If the event fires without a parent node for the selection, ignore the whole thing.
+        if ((typeof node === 'undefined') || (node === null) || (node === false) ||
+                (typeof node.parentNode === 'undefined') || (node.parentNode === null)) {
             return;
         }
 
-        if ((node.parentElement.nodeName === 'SPAN') &&
-                (node.parentElement.getAttribute('class').indexOf(CLASSES.TAG) !== -1)) {
+        var parentNodeName = node.parentNode.nodeName,
+            parentClass = node.parentNode.hasAttribute('class') ? node.parentNode.getAttribute('class') : '';
+        if ((typeof parentNodeName !== 'undefined') && (parentNodeName !== null) && (parentClass !== '') &&
+                (parentNodeName === 'SPAN') && (parentClass.indexOf(CLASSES.TAG) !== -1)) {
             selection = host.getSelectionFromNode(Y.one(node));
             host.setSelection(selection);
-            return;
         }
     },
 
