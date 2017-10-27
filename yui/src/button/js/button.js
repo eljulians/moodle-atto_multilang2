@@ -293,6 +293,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
     _checkSelectionChange: function() {
         var host = this.get('host'),
             node = host.getSelectionParentNode(),
+            parentNodeName,
+            parentClass,
             selection;
 
         // If the event fires without a parent node for the selection, ignore the whole thing.
@@ -301,8 +303,8 @@ Y.namespace('M.atto_multilang2').Button = Y.Base.create('button', Y.M.editor_att
             return;
         }
 
-        var parentNodeName = node.parentNode.nodeName,
-            parentClass = node.parentNode.hasAttribute('class') ? node.parentNode.getAttribute('class') : '';
+        parentNodeName = node.parentNode.nodeName;
+        parentClass = node.parentNode.hasAttribute('class') ? node.parentNode.getAttribute('class') : '';
         if ((typeof parentNodeName !== 'undefined') && (parentNodeName !== null) && (parentClass !== '') &&
                 (parentNodeName === 'SPAN') && (parentClass.indexOf(CLASSES.TAG) !== -1)) {
             selection = host.getSelectionFromNode(Y.one(node));
