@@ -14,12 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Atto text editor multilanguage plugin lib.
+ *
+ * @package   atto_multilang2
+ * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
-// Plugin for Moodle 'Multilingual content' drop down menu.
-// @package   atto_multilang2
-// @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
-// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+/*
+ * Plugin for Moodle 'Multilingual content' drop down menu.
+ * @package   atto_multilang2
+ * @copyright 2016 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+ */
 
 $capabilities = array(
     'atto/multilang2:viewlanguagemenu' => array(
