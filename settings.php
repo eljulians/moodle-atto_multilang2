@@ -30,4 +30,4 @@ $settings->add(new admin_setting_configcheckbox('atto_multilang2/highlight',
     get_string('highlight', 'atto_multilang2'), get_string('highlight_desc', 'atto_multilang2'), 1));
 $settings->add(new admin_setting_configtextarea('atto_multilang2/customcss',
     get_string('customcss', 'atto_multilang2'), get_string('customcss_desc', 'atto_multilang2'),
-    $multilang2_default_css, PARAM_RAW));
+    $multilang2defaultcss, PARAM_RAW));
