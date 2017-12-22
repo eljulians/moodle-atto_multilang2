@@ -5,11 +5,23 @@ Feature: Atto multilanguage list
   @javascript
   Scenario: Tag some text with multilang labels
     Given I log in as "admin"
-    And the following config values are set as admin:
-      | toolbar | multilang2 = multilang2, table | editor_atto | # Needed table button, otherwise multilang list doesn't spread out...
-    And I am on homepage
-    And I follow "Profile" in the user menu
-    And I follow "Edit profile"
+    And I navigate to "Atto toolbar settings" node in "Site administration > Plugins > Text editors > Atto HTML editor"
+    And I set the field "Toolbar config" to multiline:
+    """
+      style1 = title, bold, italic
+      list = unorderedlist, orderedlist
+      links = link
+      files = image, media, managefiles
+      style2 = underline, strike, subscript, superscript
+      align = align
+      indent = indent
+      insert = equation, charmap, table, clear
+      undo = undo
+      accessibility = accessibilitychecker, accessibilityhelper
+      other = html, multilang2
+    """
+    And I click on "Save changes" "button"
+    And I open my profile in edit mode
     And I set the field "Description" to "Multilingual content"
     And I select the text in the "Description" Atto editor
     When I click on "Multi-Language Content (v2)" "button"
