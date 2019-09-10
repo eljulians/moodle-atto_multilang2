@@ -28,4 +28,5 @@ $string['highlight_desc'] = 'Visually highlight the multi-language content delim
 $string['customcss'] = 'CSS for delimiters';
 $string['customcss_desc'] = "<br>CSS used to highlight the multi-language content delimiters.
 <p><b>Attention:</b> just put the CSS BODY RULES, excluding the selectors, just as it appears in the default value.</p>";
+$string['other'] = 'Other';
 $string['multilang2:viewlanguagemenu'] = 'View language menu in the editor';
