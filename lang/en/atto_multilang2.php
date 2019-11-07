@@ -18,7 +18,7 @@
  * Strings for 'Atto Multilang v2' plugin.
  *
  * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright 2015 onwards Julen Pardo, Kepa Urzelai & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,3 +29,4 @@ $string['customcss'] = 'CSS for delimiters';
 $string['customcss_desc'] = "<br>CSS used to highlight the multi-language content delimiters.
 <p><b>Attention:</b> just put the CSS BODY RULES, excluding the selectors, just as it appears in the default value.</p>";
 $string['multilang2:viewlanguagemenu'] = 'View language menu in the editor';
+$string['privacy:metadata'] = 'The Multi-Language Content (v2) plugin for the atto editor doesn`t store any personal data';

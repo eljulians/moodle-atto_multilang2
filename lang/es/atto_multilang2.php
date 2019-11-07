@@ -18,7 +18,7 @@
  * Strings for 'Atto Multilang v2' plugin.
  *
  * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright 2015 onwards Julen Pardo, Kepa Urzelai & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,3 +28,4 @@ $string['highlight_desc'] = 'Destacar visualmente los delimitadores del contenid
 $string['customcss'] = 'CSS para los delimitadores';
 $string['customcss_desc'] = "<br>CSS usado para destacar los delimitadores del contenido multi-idioma.
 <p><b>Atenci&oacute;n:</b> poner solo las EL CUERPO DE LAS REGLAS CSS, excluyendo los selectores, tal y como aparece en el valor por defecto.</p>";
+$string['privacy:metadata'] = 'El plugin Contenido Multi-Idioma (v2) para el editor atto no almacena ningún dato personal';

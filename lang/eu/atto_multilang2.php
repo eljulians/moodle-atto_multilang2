@@ -18,7 +18,7 @@
  * Strings for 'Atto Multilang v2' plugin.
  *
  * @package   atto_multilang2
- * @copyright 2015 onwards Julen Pardo & Mondragon Unibertsitatea
+ * @copyright 2015 onwards Julen Pardo, Kepa Urzelai & Mondragon Unibertsitatea
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,3 +28,4 @@ $string['highlight_desc'] = 'Bisualki nabarmendu multi-hizkuntza eduki mugatzail
 $string['customcss'] = 'CSS mugatzaileentzat';
 $string['customcss_desc'] = "<br>Erabilitako CSS-a multi-hizkuntza eduki mugatzaileentzat.
 <p><b>Kontuz:</b> jarri soilik CSS GORPUTZAREN ARAUAK, selektoreak baztertuz, lehenetsitako balorean bezala.</p>";
+$string['privacy:metadata'] = 'Atto editorerako Eduki Eleanitza (v2) pluginak ez ditu datu pertsonalik grodetzen';
