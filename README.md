@@ -1,7 +1,7 @@
 Atto multilanguage plugin
 =========================
 
-![Release](https://img.shields.io/badge/release-v1.10-blue.svg) ![Supported](https://img.shields.io/badge/supported-3.7-green.svg)
+![Release](https://img.shields.io/badge/release-v1.10-blue.svg) ![Supported](https://img.shields.io/badge/supported-3.6%2C%203.7-green.svg)
 
 This plugin will make the creation of multilingual contents on Moodle much more easier with Atto editor.
 
@@ -9,7 +9,7 @@ The plugin is developed to work with [Iñaki Arenaza's multilang2 filter](https:
 
 ## Current version
 
-The latest release is v1.10 (build 2019110600) for Moodle 3.7.
+The latest release is v1.10 (build 2019110600) for Moodle 3.6 and 3.7.
 
 ## Changes from v1.9
  - The Privacy Api has been implemented so that this plugin complies with the new General Data Protection Regulation, effective as of May 25, 2018.
