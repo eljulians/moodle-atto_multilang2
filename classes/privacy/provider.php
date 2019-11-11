@@ -23,19 +23,19 @@
  */
 
 namespace atto_multilang2\privacy;
- 
+
  defined('MOODLE_INTERNAL') || die();
 
- /**
- * Privacy Subsystem for atto_multilang2 implementing null_provider.
- *
- * @copyright  2019 Kepa Urzelai & Mondragon Unibertsitatea <kepa.urzelaiv@alumni.mondragon.edu>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+  /**
+  * Privacy Subsystem for atto_multilang2 implementing null_provider.
+  *
+  * @copyright  2019 Kepa Urzelai & Mondragon Unibertsitatea <kepa.urzelaiv@alumni.mondragon.edu>
+  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+  */
 class provider implements
     // This plugin does not store any personal user data.
     \core_privacy\local\metadata\null_provider {
- 
+
     /**
      * Get the language string identifier with the component's language
      * file to explain why this plugin stores no data.
