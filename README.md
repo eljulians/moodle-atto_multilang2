@@ -12,7 +12,7 @@ The plugin is developed to work with [Iñaki Arenaza's multilang2 filter](https:
 The latest release is v1.10 (build 2019110600) for Moodle 3.6 and 3.7.
 
 ## Changes from v1.9
- - The Privacy Api has been implemented so that this plugin complies with the new General Data Protection Regulation, effective as of May 25, 2018.
+ - The Privacy Api has been implemented so that this plugin complies with the new [General Data Protection Regulation](https://eugdpr.org/) (GDPR), effective as of May 25, 2018.
 
 ## Changes from v1.8
  - Added Grunt support files. No we can check Moodle Javascript coding guidelines and minify the plugin code without installing the plugins.
