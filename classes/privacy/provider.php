@@ -26,7 +26,7 @@ namespace atto_multilang2\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-  /**
+ /**
   * Privacy Subsystem for atto_multilang2 implementing null_provider.
   *
   * @copyright  2019 Kepa Urzelai & Mondragon Unibertsitatea <kepa.urzelaiv@alumni.mondragon.edu>

@@ -5,7 +5,7 @@ Feature: Atto multilanguage list
   @javascript
   Scenario: Tag some text with multilang labels
     Given I log in as "admin"
-    And I navigate to "Atto toolbar settings" node in "Site administration > Plugins > Text editors > Atto HTML editor"
+    And I navigate to "Plugins > Text editors > Atto HTML editor > Atto toolbar settings" in site administration
     And I set the field "Toolbar config" to multiline:
     """
       style1 = title, bold, italic
