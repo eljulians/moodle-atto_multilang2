@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Atto text editor multilanguage plugin lib.
+ * Atto text editor multilanguage (v2) plugin privacy provider.
  *
  * @package   atto_multilang2
  * @copyright 2019 onwards Kepa Urzelai & Mondragon Unibertsitatea
@@ -26,12 +26,12 @@ namespace atto_multilang2\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
- /**
-  * Privacy Subsystem for atto_multilang2 implementing null_provider.
-  *
-  * @copyright  2019 Kepa Urzelai & Mondragon Unibertsitatea <kepa.urzelaiv@alumni.mondragon.edu>
-  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-  */
+/**
+ * Privacy Subsystem for atto_multilang2 implementing null_provider.
+ *
+ * @copyright  2019 Kepa Urzelai & Mondragon Unibertsitatea <kepa.urzelaiv@alumni.mondragon.edu>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class provider implements
     // This plugin does not store any personal user data.
     \core_privacy\local\metadata\null_provider {
@@ -43,6 +43,6 @@ class provider implements
      * @return  string
      */
     public static function get_reason() : string {
-        return 'privacy:metadata';
+        return get_string('privacy:metadata', 'atto_multilang2');
     }
 }
