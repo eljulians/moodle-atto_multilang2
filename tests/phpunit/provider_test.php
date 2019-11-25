@@ -62,12 +62,17 @@ class atto_multilang2_provider_testcase extends provider_testcase {
      * @return void
      */
     public function test_provider() {
+        global $CFG;
         $test = array (
             'sitelang' => 'en',
             'privacymetadata' => 'The Multi-Language Content (v2) plugin for the atto editor does not store any personal data',
         );
 
+        $curlang = $CFG->lang;
+
+        $CFG->lang = $test['sitelang'];
         $this->assertEquals($test['privacymetadata'], $this->provider->get_reason());
 
+        $CFG->lang = $curlang;
     }
 }
